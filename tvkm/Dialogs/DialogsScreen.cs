@@ -509,6 +509,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         FetchPeersList();
         LongpollDaemon.OnNewMessage += OnNewMessage;
         LongpollDaemon.OnMessageEdit += OnMessageEdit;
+        LongpollDaemon.OnMessageWrite += OnMessageWrite;
     }
 
     public void OnPause()
@@ -523,6 +524,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     {
         LongpollDaemon.OnNewMessage -= OnNewMessage;
         LongpollDaemon.OnMessageEdit -= OnMessageEdit;
+        LongpollDaemon.OnMessageWrite -= OnMessageWrite;
         Inst = null;
     }
 
