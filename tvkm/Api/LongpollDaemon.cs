@@ -1,13 +1,13 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VkNet;
+using VkNet.Abstractions;
 using VkNet.Model;
 
 namespace tvkm.Api;
 
 public class LongpollDaemon
 {
-    private static LongpollDaemon? _inst;
     public static bool LongpollIsOk { get; private set; }
     public static event Action<bool> LongpollStateChange = null!;
     public static event Action<LongpollMessage> OnNewMessage = null!;
@@ -18,7 +18,6 @@ public class LongpollDaemon
     public LongpollDaemon(VkApi api)
     {
         _api = api;
-        _inst = this;
     }
 
     private readonly VkApi _api;
@@ -33,7 +32,7 @@ public class LongpollDaemon
         Task.Factory.StartNew(LongpollLoop, TaskCreationOptions.LongRunning);
     }
 
-    private void ReportLongpollState(bool s)
+    private static void ReportLongpollState(bool s)
     {
         LongpollIsOk = s;
         LongpollStateChange?.Invoke(s);
@@ -49,7 +48,7 @@ public class LongpollDaemon
             {
                 var lpp = await _api.Messages.GetLongPollServerAsync(true);
                 ReportLongpollState(true);
-                string activeTs = lpp.Ts;
+                var activeTs = lpp.Ts;
 
                 _httpClient?.Dispose();
                 _httpClient = new HttpClient();
@@ -71,17 +70,17 @@ public class LongpollDaemon
                     {
                         var update = updates[i];
 
-                        if (update.Type == 4)
+                        switch (update.Type)
                         {
-                            OnNewMessage?.Invoke(new LongpollMessage(update, _api));
-                        }
-                        else if (update.Type == 5)
-                        {
-                            OnMessageEdit?.Invoke(new LongpollMessageEdit(update));
-                        }
-                        else if (update.Type == 61)
-                        {
-                            OnMessageWrite?.Invoke(new LongpollWriteStatus(update));
+                            case 4:
+                                OnNewMessage?.Invoke(new LongpollMessage(update, _api));
+                                break;
+                            case 5:
+                                OnMessageEdit?.Invoke(new LongpollMessageEdit(update));
+                                break;
+                            case 61:
+                                OnMessageWrite?.Invoke(new LongpollWriteStatus(update));
+                                break;
                         }
                     }
                 }
@@ -102,11 +101,10 @@ public class LongpollDaemon
         _httpClient?.Dispose();
     }
 
-    public struct LongpollMessage
+    public readonly struct LongpollMessage
     {
-        public LongpollMessage(LongpollUpdate upd, VkApi api)
+        public LongpollMessage(LongpollUpdate upd, IVkApi api)
         {
-            if (upd.Type != 4) throw new ArgumentException();
             var data = upd.Data;
             MessageId = Convert.ToInt32(data[0]);
             Flags = Convert.ToInt32(data[1]);
@@ -115,28 +113,28 @@ public class LongpollDaemon
                 .ToLocalTime();
             Text = (string)data[4];
             Extra = new Dictionary<string, string>();
-            FromId = 0;
+            var fromId = 0;
             foreach (var dict in data.Skip(5).Cast<JObject>())
             {
                 foreach (var p in dict)
                 {
                     if (p.Key == "from")
-                        FromId = int.Parse(p.Value?.ToString() ?? "0");
+                        fromId = int.Parse(p.Value?.ToString() ?? "0");
                     else if (p.Value != null)
                         Extra.Add(p.Key, p.Value.ToString());
                 }
             }
 
-            if (FromId == 0) FromId = api.UserId ?? 0;
+            FromId = fromId != 0 ? fromId : api.UserId ?? 0;
         }
 
-        public int MessageId;
-        public int Flags;
-        public int TargetId;
-        public long FromId;
-        public DateTime Time;
-        public string Text;
-        public Dictionary<string, string> Extra;
+        public readonly int MessageId;
+        public readonly int Flags;
+        public readonly int TargetId;
+        public readonly long FromId;
+        public readonly DateTime Time;
+        public readonly string Text;
+        public readonly Dictionary<string, string> Extra;
 
         public Message LoadFull(VkApi api)
         {

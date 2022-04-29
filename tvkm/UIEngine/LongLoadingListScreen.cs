@@ -4,18 +4,18 @@ using static Console;
 
 public abstract class LongLoadingListScreen : ListScreen
 {
-    public LongLoadingListScreen(string title) : base(title)
+    protected LongLoadingListScreen(string title) : base(title)
     {
     }
 
-    private bool ready = false;
-    private CancellationTokenSource? loadingToken;
+    private bool _ready;
+    private CancellationTokenSource? _loadingToken;
 
-    public abstract void Load();
+    protected abstract void Load();
 
     public override void OnEnter(ScreenHub screenHub)
     {
-        loadingToken = new CancellationTokenSource();
+        _loadingToken = new CancellationTokenSource();
         base.OnEnter(screenHub);
         Task.Run(() =>
         {
@@ -24,10 +24,10 @@ public abstract class LongLoadingListScreen : ListScreen
             {
                 if (t.IsCompleted)
                 {
-                    ready = true;
+                    _ready = true;
                     screenHub.Redraw();
-                    loadingToken.Dispose();
-                    loadingToken = null;
+                    _loadingToken.Dispose();
+                    _loadingToken = null;
                     if (t.IsFaulted)
                     {
                         Title = Title + " [ошибка]";
@@ -36,48 +36,47 @@ public abstract class LongLoadingListScreen : ListScreen
                     return;
                 }
 
-                if (loadingToken.IsCancellationRequested)
+                if (_loadingToken.IsCancellationRequested)
                 {
-                    loadingToken.Dispose();
-                    loadingToken = null;
+                    _loadingToken.Dispose();
+                    _loadingToken = null;
                     return;
                 }
 
                 Thread.Sleep(100);
                 screenHub.Redraw();
             }
-        }, loadingToken.Token);
+        }, _loadingToken.Token);
     }
 
     /// <inheritdoc />
     public override void OnLeave()
     {
         base.OnLeave();
-        loadingToken?.Cancel();
+        _loadingToken?.Cancel();
     }
 
     protected override void DrawContent()
     {
-        if (ready)
+        if (_ready)
             base.DrawContent();
     }
 
     protected override void DrawOverlay()
     {
-        if (ready)
+        if (_ready)
         {
             base.DrawOverlay();
             return;
         }
-        int w = BufferWidth;
-        long t = DateTime.Now.Ticks / 1000000;
-        int s = (int)(t % 24);
-
-        int x = s - 6;
+        
+        var w = BufferWidth;
+        var s = (int)((DateTime.Now.Ticks / 1000000) % 24);
+        
         SetCursorPosition(w / 2 - 5, 1);
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
-            Write((i >= x && i <= s) ? '*' : ' ');
+            Write((i >= (s - 6) && i <= s) ? '*' : ' ');
         }
 
         SetCursorPosition(w / 2 - 7, 0);
@@ -90,7 +89,7 @@ public abstract class LongLoadingListScreen : ListScreen
         Write((char)0x2551);
         SetCursorPosition(w / 2 - 7, 2);
         Write((char)0x255A);
-        for (int i = 0; i < 12; i++)
+        for (var i = 0; i < 12; i++)
         {
             Write((char)0x2550);
         }

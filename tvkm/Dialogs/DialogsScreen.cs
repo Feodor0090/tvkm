@@ -473,7 +473,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
-    private CancellationTokenSource typingLabelToken = new CancellationTokenSource();
+    private CancellationTokenSource _typingLabelToken = new();
 
     private async void OnMessageWrite(LongpollDaemon.LongpollWriteStatus msg)
     {
@@ -486,11 +486,11 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             FixCursorLocation();
         }
 
-        await Task.Delay(6000, typingLabelToken.Token);
-        if (typingLabelToken.IsCancellationRequested)
+        await Task.Delay(6000, _typingLabelToken.Token);
+        if (_typingLabelToken.IsCancellationRequested)
         {
-            typingLabelToken.Dispose();
-            typingLabelToken = new CancellationTokenSource();
+            _typingLabelToken.Dispose();
+            _typingLabelToken = new CancellationTokenSource();
             return;
         }
 
