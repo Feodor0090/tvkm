@@ -16,7 +16,7 @@ public static class Program
             {
                 if (File.Exists("session.txt"))
                 {
-                    _app.Auth();
+                    _app.RestoreFromFile();
                     hub.Push(_app);
                 }
                 else
@@ -40,7 +40,7 @@ public static class Program
             {
                 try
                 {
-                    _app.Auth(login.Text, password.Text);
+                    _app.AuthByPassword(login.Text, password.Text);
                     hub.BackThenPush(_app);
                 }
                 catch

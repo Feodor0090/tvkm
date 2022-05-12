@@ -51,6 +51,8 @@ public class App : ListScreen
         });
     }
     
+    #region Screen control
+    
     public override void OnEnter(ScreenHub screenHub)
     {
         UserId = (int)(_api.UserId ?? 0);
@@ -65,17 +67,19 @@ public class App : ListScreen
         Longpoll = null;
     }
     
+    #endregion
+    
     #region Authorization
     
     public void Auth(int id, string token) => _api.Authorize(new ApiAuthParams { AccessToken = token, UserId = id });
 
-    public void Auth()
+    public void RestoreFromFile()
     {
-        var s = File.ReadAllText("session.txt").Split(' ');
-        Auth(int.Parse(s[0]), s[1]);
+        var data = ConfigManager.ReadSavedToken();
+        Auth(data.Item1, data.Item2);
     }
 
-    public void Auth(string login, string password)
+    public void AuthByPassword(string login, string password)
     {
         using HttpClient http = new();
         http.BaseAddress = new Uri("https://oauth.vk.com");
@@ -89,9 +93,7 @@ public class App : ListScreen
 
         var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(r.Content.ReadAsStringAsync().Result);
         Auth(int.Parse(dict["user_id"]), dict["access_token"]);
-        using StreamWriter sw = new("session.txt", false);
-        sw.Write($"{dict["user_id"]} {dict["access_token"]}");
-        sw.Flush();
+        ConfigManager.WriteToken(long.Parse(dict["user_id"]), dict["access_token"]);
     }
     
     #endregion
