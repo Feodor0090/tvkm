@@ -21,7 +21,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     private readonly List<char> _message = new();
     private int _messageFieldCursorX;
 
-    private ScreenHub? _hub;
+    private ScreenStack? _stack;
 
     public const int DialTabW = 50;
     private const string DateFormat = " [hh:mm]: ";
@@ -277,7 +277,6 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     public void HandleKey(InputEvent e, ScreenStack stack)
     {
-        var sh = stack.Hub;
         var l = stack.PartialDrawLock;
         void RedrawInput()
         {
@@ -324,7 +323,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 lock (l)
                 {
                     DrawPeersList();
-                    sh.CancelRedraw();
+                    stack.CancelRedraw();
                     FixCursorLocation();
                 }
 
@@ -428,8 +427,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             }
 
             Msgs.Add(new MsgItem(GetUser(id), m));
-            if (_hub == null) return;
-            lock (_hub)
+            if (_stack == null) return;
+            lock (_stack.PartialDrawLock)
             {
                 RedrawAllMessages();
             }
@@ -449,11 +448,11 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 Peers.Insert(0, p);
             }
 
-            if (_hub != null)
-                lock (_hub)
-                {
-                    DrawPeersList();
-                }
+            if (_stack == null) return;
+            lock (_stack.PartialDrawLock)
+            {
+                DrawPeersList();
+            }
         }
     }
 
@@ -468,8 +467,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
         m.Update(ToFull(msg));
 
-        if (_hub == null) return;
-        lock (_hub)
+        if (_stack == null) return;
+        lock (_stack.PartialDrawLock)
         {
             RedrawAllMessages();
         }
@@ -479,9 +478,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     private async void OnMessageWrite(LongpollDaemon.LongpollWriteStatus msg)
     {
-        if (msg.PeerId != CurrentDialog || _hub == null) return;
+        if (msg.PeerId != CurrentDialog || _stack == null) return;
 
-        lock (_hub)
+        lock (_stack.PartialDrawLock)
         {
             SetCursorPosition(DialTabW, 0);
             DrawBlockTitle(BufferWidth - DialTabW, ActiveDialogName + " (печатает)");
@@ -496,7 +495,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             return;
         }
 
-        lock (_hub)
+        lock (_stack.PartialDrawLock)
         {
             SetCursorPosition(DialTabW, 0);
             DrawBlockTitle(BufferWidth - DialTabW, ActiveDialogName);
@@ -506,7 +505,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     public void OnEnter(ScreenStack stack)
     {
-        _hub = stack.Hub;
+        _stack = stack;
         OpenDialog(null);
         FetchPeersList();
         LongpollDaemon.OnNewMessage += OnNewMessage;
