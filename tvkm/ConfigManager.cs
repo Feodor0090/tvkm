@@ -4,7 +4,36 @@ public class ConfigManager
 {
     public static void ReadSettings()
     {
-        // do nothing for now
+        try
+        {
+            var lines = File.ReadAllLines("config.txt").Select(x => x.Split(':').Select(y => y.Trim()).ToArray());
+            Dictionary<string, string> config = new();
+            foreach (var line in lines)
+            {
+                if(line.Length<2 || line[0].StartsWith("//") || line[0].StartsWith('#')) 
+                    continue;
+                
+                config.Add(line[0], line[1]);
+            }
+            Settings.Apply(config);
+        }
+        catch (FileNotFoundException)
+        {
+            using StreamWriter sw = new("config.txt", false);
+            sw.Write($"# Это пустой конфигурационный файл для TVKM. Загляните на GitHub для получения информации о его создании.\n\n" +
+                     $"# BrowserPath: /usr/bin/w3m\n" +
+                     $"# ImageViewerPath: /usr/bin/ristretto\n" +
+                     $"# SendReadEvent: true");
+            sw.Flush();
+        }
+        catch (IOException)
+        {
+
+        }
+        catch
+        {
+            
+        }
     }
 
     /// <summary>

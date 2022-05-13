@@ -66,6 +66,7 @@ public static class Program
     static void Main(string[] args)
     {
         _app = new App(hub);
+        ConfigManager.ReadSettings();
         hub.Push(new StartupScreen());
         hub.Loop();
     }

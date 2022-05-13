@@ -46,6 +46,7 @@ public class App : ListScreen
 
     public override void OnEnter(ScreenHub screenHub)
     {
+        ConfigManager.ReadSettings();
         UserId = (int) (_api.UserId ?? 0);
         Title = $"TVKM - id{_api.UserId ?? 0}";
         Longpoll = new LongpollDaemon(_api);
