@@ -51,7 +51,7 @@ public sealed class FriendsList : LongLoadingListScreen
         {
             if (e.Action == InputAction.Activate)
             {
-                stack.Push(new UserView(_user, stack.Hub, _api));
+                stack.Push(new UserView(_user, _api));
             }
         }
 

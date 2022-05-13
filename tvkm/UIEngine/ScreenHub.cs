@@ -19,6 +19,12 @@ public sealed class ScreenHub
     private int _lastW;
     private int _lastH;
 
+    [Obsolete("Stack must be explicitly passed between screens via constructors.")]
+    public ScreenStack CurrentTab
+    {
+        get => _screens;
+    }
+
     public void CancelRedraw()
     {
         _redraw = false;
@@ -96,21 +102,5 @@ public sealed class ScreenHub
     public void Redraw()
     {
         _render.Interrupt();
-    }
-
-
-    public void Push(IScreen s)
-    {
-        _screens.Push(s);
-    }
-
-    public void Back()
-    {
-        _screens.Back();
-    }
-
-    public void BackThenPush(IScreen s)
-    {
-        _screens.BackThenPush(s);
     }
 }

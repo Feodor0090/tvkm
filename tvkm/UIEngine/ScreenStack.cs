@@ -12,7 +12,10 @@ public class ScreenStack
 
     public bool Empty => _screens.Count == 0;
 
+    [Obsolete("There are nothing to be accessed in screen hub. For locks, use PartialDrawLock instead.")]
     public ScreenHub Hub => _hub;
+
+    public Object PartialDrawLock => _hub;
     
     public void Push(IScreen s)
     {

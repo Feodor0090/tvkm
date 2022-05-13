@@ -4,8 +4,8 @@ namespace tvkm.UIEngine.Templates;
 
 public class AlertPopup : ListScreen
 {
-    public AlertPopup(string text, ScreenHub sh) : base(text)
+    public AlertPopup(string text, ScreenStack stack) : base(text)
     {
-        Add(new Button("Закрыть", sh.Back));
+        Add(new Button("Закрыть", stack.Back));
     }
 }

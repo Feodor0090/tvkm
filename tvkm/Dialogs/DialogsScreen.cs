@@ -295,7 +295,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 switch (e.Action)
                 {
                     case InputAction.Return:
-                        sh.Back();
+                        sh.CurrentTab.Back();
                         return;
                     case InputAction.MoveDown:
                         _selectedPeerItem++;

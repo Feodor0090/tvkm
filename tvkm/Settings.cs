@@ -44,7 +44,7 @@ public static class Settings
         }
     }
 
-    public static void TryOpenBrowser(string url, ScreenHub sh)
+    public static void TryOpenBrowser(string url, ScreenStack stack)
     {
         try
         {
@@ -54,11 +54,11 @@ public static class Settings
         {
             if (BrowserPath.Contains("w3m"))
             {
-                sh.Push(new AlertPopup("Не удалось запустить W3M - он задан как браузер для открытия URL. Проверьте его установку или отредактируйте конфигурацию для использования другого браузера.", sh));
+                stack.Push(new AlertPopup("Не удалось запустить W3M - он задан как браузер для открытия URL. Проверьте его установку или отредактируйте конфигурацию для использования другого браузера.", stack));
             }
             else
             {
-                sh.Push(new AlertPopup("Не удалось запустить ваш браузер. Проверьте файл конфигурации.", sh));
+                stack.Push(new AlertPopup("Не удалось запустить ваш браузер. Проверьте файл конфигурации.", stack));
             }
         }
     }

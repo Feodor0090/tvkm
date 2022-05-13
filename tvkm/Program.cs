@@ -12,27 +12,27 @@ public static class Program
 
     private sealed class StartupScreen : ListScreen
     {
-        public StartupScreen() : base("TVKM")
+        public StartupScreen(ScreenStack stack) : base("TVKM")
         {
             Add(new Button("Восстановить сессию", () =>
             {
                 if (File.Exists("session.txt"))
                 {
                     App.RestoreFromFile();
-                    hub.Push(App);
+                    stack.Push(App);
                 }
                 else
-                    hub.Push(new AlertPopup("Нет сохранённой сессии.", hub));
+                    stack.Push(new AlertPopup("Нет сохранённой сессии.", stack));
             }));
-            Add(new Button("Вход по логину/паролю", () => hub.Push(new LoginScreen())));
-            Add(new Button("GitHub", () => { Settings.TryOpenBrowser( "github.com/Feodor0090", hub); }));
-            Add(new Button("Закрыть", hub.Back));
+            Add(new Button("Вход по логину/паролю", () => stack.Push(new LoginScreen(stack))));
+            Add(new Button("GitHub", () => { Settings.TryOpenBrowser( "github.com/Feodor0090", stack); }));
+            Add(new Button("Закрыть", stack.Back));
         }
     }
 
     private sealed class LoginScreen : ListScreen
     {
-        public LoginScreen() : base("Вход в аккаунт VK")
+        public LoginScreen(ScreenStack stack) : base("Вход в аккаунт VK")
         {
             var login = new TextField("Логин");
             var password = new TextField("Пароль") { ShowChars = false };
@@ -45,11 +45,11 @@ public static class Program
                     var error = App.AuthByPassword(login.Text, password.Text);
                     if (error != null)
                     {
-                        hub.Push(new AlertPopup(error, hub));
+                        stack.Push(new AlertPopup(error, stack));
                         return;
                     }
 
-                    hub.BackThenPush(App);
+                    stack.BackThenPush(App);
                 }
                 catch (OperationCanceledException)
                 {
@@ -57,7 +57,7 @@ public static class Program
                 }
                 catch
                 {
-                    hub.Push(new AlertPopup("Не удалось войти.", hub));
+                    stack.Push(new AlertPopup("Не удалось войти.", stack));
                 }
             }));
         }
@@ -65,9 +65,9 @@ public static class Program
 
     static void Main(string[] args)
     {
-        App = new App(hub);
+        App = new App(hub.CurrentTab);
         ConfigManager.ReadSettings();
-        hub.Push(new StartupScreen());
+        hub.CurrentTab.Push(new StartupScreen(hub.CurrentTab));
         hub.Loop();
     }
 }

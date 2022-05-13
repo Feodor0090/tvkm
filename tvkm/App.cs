@@ -13,32 +13,32 @@ namespace tvkm;
 public class App : ListScreen
 {
     private readonly VkApi _api = new();
-    private ScreenHub sh;
+    private ScreenStack _stack;
 
     public LongpollDaemon? Longpoll;
     public static int UserId { get; private set; }
 
-    public App(ScreenHub sh) : base("TVKM")
+    public App(ScreenStack stack) : base("TVKM")
     {
-        this.sh = sh;
+        this._stack = stack;
         AddRange(new[]
         {
-            new Button("Лента", () => { sh.Push(new AlertPopup("Махо пидор", sh)); }),
+            new Button("Лента", () => { stack.Push(new AlertPopup("Махо пидор", stack)); }),
             new Button("Сообщения", () =>
             {
                 try
                 {
-                    sh.Push(new DialogsScreen(_api));
+                    stack.Push(new DialogsScreen(_api));
                 }
                 catch (HttpRequestException)
                 {
-                    sh.Push(new AlertPopup("Сбой подключения. Проверьте сеть.", sh));
+                    stack.Push(new AlertPopup("Сбой подключения. Проверьте сеть.", stack));
                 }
             }),
-            new Button("Друзья", () => { sh.Push(new FriendsList(_api)); }),
+            new Button("Друзья", () => { stack.Push(new FriendsList(_api)); }),
             new Button("Закрыть сессию",
-                () => { sh.Push(new AlertPopup("Сделаем позже. Удалите session.txt из рабочей папки.", sh)); }),
-            new Button("Выход", sh.Back),
+                () => { stack.Push(new AlertPopup("Сделаем позже. Удалите session.txt из рабочей папки.", stack)); }),
+            new Button("Выход", stack.Back),
         });
     }
 
@@ -93,18 +93,18 @@ public class App : ListScreen
         {
             if (dict["error"] == "need_validation" && dict["error_description"].Contains("use code param"))
             {
-                sh.Push(new TextboxPopup("2FA авторизация", "Код из SMS", s1 =>
+                _stack.Push(new TextboxPopup("2FA авторизация", "Код из SMS", s1 =>
                 {
                     try
                     {
                         var error = AuthByPassword(login, password, s1);
                         if (error != null)
                         {
-                            sh.Push(new AlertPopup(error, sh));
+                            _stack.Push(new AlertPopup(error, _stack));
                             return;
                         }
-                        sh.Back();
-                        sh.BackThenPush(this);
+                        _stack.Back();
+                        _stack.BackThenPush(this);
                     }
                     catch (OperationCanceledException)
                     {
@@ -112,7 +112,7 @@ public class App : ListScreen
                     }
                     catch
                     {
-                        sh.Push(new AlertPopup("Не удалось войти.", sh));
+                        _stack.Push(new AlertPopup("Не удалось войти.", _stack));
                     }
                 }));
                 throw new OperationCanceledException();
