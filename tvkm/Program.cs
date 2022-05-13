@@ -8,7 +8,7 @@ namespace tvkm;
 public static class Program
 {
     private static readonly ScreenHub hub = new ScreenHub(new DefaultControlsScheme());
-    public static App _app;
+    public static App App;
 
     private sealed class StartupScreen : ListScreen
     {
@@ -18,8 +18,8 @@ public static class Program
             {
                 if (File.Exists("session.txt"))
                 {
-                    _app.RestoreFromFile();
-                    hub.Push(_app);
+                    App.RestoreFromFile();
+                    hub.Push(App);
                 }
                 else
                     hub.Push(new AlertPopup("Нет сохранённой сессии.", hub));
@@ -42,14 +42,14 @@ public static class Program
             {
                 try
                 {
-                    var error = _app.AuthByPassword(login.Text, password.Text);
+                    var error = App.AuthByPassword(login.Text, password.Text);
                     if (error != null)
                     {
                         hub.Push(new AlertPopup(error, hub));
                         return;
                     }
 
-                    hub.BackThenPush(_app);
+                    hub.BackThenPush(App);
                 }
                 catch (OperationCanceledException)
                 {
@@ -65,7 +65,7 @@ public static class Program
 
     static void Main(string[] args)
     {
-        _app = new App(hub);
+        App = new App(hub);
         ConfigManager.ReadSettings();
         hub.Push(new StartupScreen());
         hub.Loop();

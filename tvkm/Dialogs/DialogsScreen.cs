@@ -16,7 +16,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     private int _selectedPeerItem;
 
-    private FocusedSection _focus = FocusedSection.PeersList;
+    public FocusedSection Focus = FocusedSection.PeersList;
 
     private readonly List<char> _message = new();
     private int _messageFieldCursorX;
@@ -70,7 +70,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     {
         int h = BufferHeight, w = BufferWidth;
         DrawBorder(0, h - 3, w, 3, "Ваше сообщение",
-            _focus == FocusedSection.InputField ? ConsoleColor.Yellow : ConsoleColor.White);
+            Focus == FocusedSection.InputField ? ConsoleColor.Yellow : ConsoleColor.White);
         DrawBorder(DialTabW, 0, w - DialTabW, h - 3, ActiveDialogName, ConsoleColor.White);
     }
 
@@ -92,12 +92,12 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         for (; i < Peers.Count && j < BufferHeight - 4; i++)
         {
             SetCursorPosition(1, j);
-            Peers[i].Draw(_focus == FocusedSection.PeersList && i == _selectedPeerItem);
+            Peers[i].Draw(Focus == FocusedSection.PeersList && i == _selectedPeerItem);
             j++;
         }
 
         DrawBorder(0, 0, DialTabW, BufferHeight - 3, "Список диалогов",
-            _focus == FocusedSection.PeersList ? ConsoleColor.Yellow : ConsoleColor.White);
+            Focus == FocusedSection.PeersList ? ConsoleColor.Yellow : ConsoleColor.White);
 
         float scrollProgress = (float)_selectedPeerItem / Peers.Count;
         int scrollCursorY = (int)(scrollProgress * h + 1);
@@ -196,7 +196,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     private void FixCursorLocation()
     {
         var h = BufferHeight;
-        switch (_focus)
+        switch (Focus)
         {
             case FocusedSection.InputField:
                 SetCursorPosition(_messageFieldCursorX + 1, h - 2);
@@ -256,7 +256,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     {
         lock (this)
         {
-            ForegroundColor = _focus == FocusedSection.InputField ? Settings.SelectionColor : Settings.DefaultColor;
+            ForegroundColor = Focus == FocusedSection.InputField ? Settings.SelectionColor : Settings.DefaultColor;
             if (_message.Count <= BufferWidth - 3)
             {
                 Write(_message.ToArray());
@@ -288,7 +288,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             }
         }
 
-        switch (_focus)
+        switch (Focus)
         {
             case FocusedSection.PeersList:
                 switch (e.Action)
@@ -308,7 +308,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                         break;
                     case InputAction.Activate:
                         Peers[_selectedPeerItem].HandleKey(e);
-                        _focus = FocusedSection.InputField;
+                        Focus = FocusedSection.InputField;
                         lock (sh)
                         {
                             RedrawAllMessages();
@@ -337,7 +337,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                         case InputAction.Return:
                             if (_message.Count == 0)
                             {
-                                _focus = FocusedSection.PeersList;
+                                Focus = FocusedSection.PeersList;
                                 OpenDialog(null);
                                 break;
                             }
@@ -441,7 +441,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             var p = Peers.FirstOrDefault(x => x.PeerId == msg.TargetId);
             if (p == null) return;
             p.UnreadCount++;
-            if (_focus != FocusedSection.PeersList)
+            if (Focus != FocusedSection.PeersList)
             {
                 Peers.Remove(p);
                 Peers.Insert(0, p);
@@ -530,7 +530,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     public IItem? Current => null;
 
-    private enum FocusedSection : byte
+    public enum FocusedSection : byte
     {
         PeersList,
         MessagesHistory,

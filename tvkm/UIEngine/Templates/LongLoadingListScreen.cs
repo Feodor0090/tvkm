@@ -11,7 +11,7 @@ public abstract class LongLoadingListScreen : ListScreen
     private bool _ready;
     private CancellationTokenSource? _loadingToken;
 
-    protected abstract void Load();
+    protected abstract void Load(ScreenHub hub);
 
     public override void OnEnter(ScreenHub screenHub)
     {
@@ -19,7 +19,7 @@ public abstract class LongLoadingListScreen : ListScreen
         base.OnEnter(screenHub);
         Task.Run(() =>
         {
-            var t = Task.Run(Load);
+            var t = Task.Run(() => { Load(screenHub); });
             while (true)
             {
                 if (t.IsCompleted)
@@ -69,10 +69,10 @@ public abstract class LongLoadingListScreen : ListScreen
             base.DrawOverlay();
             return;
         }
-        
+
         var w = BufferWidth;
-        var s = (int)((DateTime.Now.Ticks / 1000000) % 24);
-        
+        var s = (int) ((DateTime.Now.Ticks / 1000000) % 24);
+
         SetCursorPosition(w / 2 - 5, 1);
         for (var i = 0; i < 10; i++)
         {
@@ -80,20 +80,20 @@ public abstract class LongLoadingListScreen : ListScreen
         }
 
         SetCursorPosition(w / 2 - 7, 0);
-        Write((char)0x2566);
+        Write((char) 0x2566);
         SetCursorPosition(w / 2 + 6, 0);
-        Write((char)0x2566);
+        Write((char) 0x2566);
         SetCursorPosition(w / 2 - 7, 1);
-        Write((char)0x2551);
+        Write((char) 0x2551);
         SetCursorPosition(w / 2 + 6, 1);
-        Write((char)0x2551);
+        Write((char) 0x2551);
         SetCursorPosition(w / 2 - 7, 2);
-        Write((char)0x255A);
+        Write((char) 0x255A);
         for (var i = 0; i < 12; i++)
         {
-            Write((char)0x2550);
+            Write((char) 0x2550);
         }
 
-        Write((char)0x255D);
+        Write((char) 0x255D);
     }
 }
