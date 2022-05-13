@@ -1,4 +1,5 @@
 using VkNet;
+using VkNet.Abstractions;
 using VkNet.Enums.Filters;
 using VkNet.Model;
 
@@ -17,7 +18,7 @@ public readonly struct VkUser
             {
                 case > 0:
                 {
-                    IEnumerable<User> users = api.Users.Get(new long[] { id });
+                    IEnumerable<User> users = api.Users.Get(new long[] {id});
                     return !users.Any() ? "UNKNOWN_USER" : new VkUser(users.First()).Name;
                 }
                 case < 0:
@@ -71,15 +72,16 @@ public readonly struct VkUser
     public readonly long Id;
     public readonly string Name;
 
-
-    public static VkUser[] ToUsers(IEnumerable<User>? people, IEnumerable<Group>? groups)
+    public User? LoadFull(IUsersCategory usersApi)
     {
-        var pc =
-            people?.Select(x => new VkUser(x)) ?? Array.Empty<VkUser>();
-        var gc =
-            groups?.Select(x => new VkUser(x)) ?? Array.Empty<VkUser>();
-        return pc.Concat(gc).ToArray();
+        if (Id <= 0) return null;
+        return usersApi.Get(new long[] {Id}, ProfileFields.All).FirstOrDefault();
     }
+
+
+    public static VkUser[] ToUsers(IEnumerable<User>? people, IEnumerable<Group>? groups) =>
+        (people?.Select(x => new VkUser(x)) ?? Array.Empty<VkUser>())
+        .Concat(groups?.Select(x => new VkUser(x)) ?? Array.Empty<VkUser>()).ToArray();
 
     public static IEnumerable<(VkUser, T)> MapObjectsWithUsers<T>(IEnumerable<T> input,
         IEnumerable<VkUser> users, Func<T, int> idGetter)

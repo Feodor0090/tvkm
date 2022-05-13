@@ -3,7 +3,6 @@ using tvkm.Dialogs;
 using tvkm.UIEngine;
 using tvkm.UIEngine.Templates;
 using VkNet;
-using VkNet.Enums.Filters;
 using VkNet.Model;
 using Button = tvkm.UIEngine.Controls.Button;
 
@@ -13,6 +12,7 @@ public class UserView : LongLoadingListScreen
 {
     private readonly VkUser _user;
     private readonly VkApi _api;
+    private User? fullUser;
 
     public UserView(VkUser user, VkApi api) : base($"{user.Name} (id{user.Id})")
     {
@@ -22,23 +22,23 @@ public class UserView : LongLoadingListScreen
 
     protected override void Load(ScreenStack stack)
     {
+        fullUser = _user.LoadFull(_api.Users);
         Add(new Button("Посмотреть аватар", () =>
         {
             try
             {
-                var user = _api.Users.Get(new long[] {_user.Id}, ProfileFields.All).FirstOrDefault();
-                if (user == null)
+                if (fullUser == null)
                 {
-                    stack.Push(new AlertPopup("Сбой запроса URL.", stack));
+                    stack.Alert("Сбой получения информации о пользователе.");
                     return;
                 }
 
-                string url = user.PhotoMaxOrig.AbsoluteUri;
+                string url = fullUser.PhotoMaxOrig.AbsoluteUri;
                 ExternalUtils.TryViewPhoto(url, stack);
             }
             catch
             {
-                stack.Push(new AlertPopup("Аватарка отвалилась. Может, профиль закрыт?", stack));
+                stack.Alert("Аватарка отвалилась. Может, профиль закрыт?");
             }
         }));
         Add(new Button("Открыть переписку", () =>

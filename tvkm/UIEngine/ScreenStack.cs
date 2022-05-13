@@ -1,3 +1,5 @@
+using tvkm.UIEngine.Templates;
+
 namespace tvkm.UIEngine;
 
 public class ScreenStack
@@ -60,5 +62,14 @@ public class ScreenStack
         while (_screens.Count > 0)
             Back();
         Push(s);
+    }
+
+    /// <summary>
+    /// Shortcut for pushing an alert popup with text.
+    /// </summary>
+    /// <param name="text">Text to show to user.</param>
+    public void Alert(string text)
+    {
+        Push(new AlertPopup(text, this));
     }
 }
