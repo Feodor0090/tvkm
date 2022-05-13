@@ -43,14 +43,20 @@ public static class ExternalUtils
     public static void TryViewPhoto(Photo photo, ScreenStack stack)
     {
         var size = photo.Sizes.OrderBy(x => x.Width).FirstOrDefault();
-        var path = CacheFile(size.Url.AbsoluteUri);
+        TryViewPhoto(size.Url.AbsoluteUri, stack);
+    }
+
+    public static void TryViewPhoto(string photo, ScreenStack stack)
+    {
+        var path = CacheFile(photo);
         try
         {
             Process.Start(Settings.ImageViewerPath, path);
         }
         catch
         {
-            stack.Push(new AlertPopup("Не удалось запустить ваш просмотрщик изображений. Проверьте файл конфигурации.", stack));
+            stack.Push(new AlertPopup("Не удалось запустить ваш просмотрщик изображений. Проверьте файл конфигурации.",
+                stack));
         }
     }
 }
