@@ -33,7 +33,11 @@ public static class ExternalUtils
 
     private static string CacheFile(string url)
     {
-        throw new NotImplementedException();
+        using HttpClient httpClient = new HttpClient();
+        var data = httpClient.GetByteArrayAsync(url).Result;
+        var path = Path.GetTempFileName();
+        File.WriteAllBytes(path, data);
+        return path;
     }
 
     public static void TryViewPhoto(Photo photo, ScreenStack stack)
