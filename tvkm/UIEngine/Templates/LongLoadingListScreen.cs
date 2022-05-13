@@ -11,21 +11,21 @@ public abstract class LongLoadingListScreen : ListScreen
     private bool _ready;
     private CancellationTokenSource? _loadingToken;
 
-    protected abstract void Load(ScreenHub hub);
+    protected abstract void Load(ScreenStack stack);
 
-    public override void OnEnter(ScreenHub screenHub)
+    public override void OnEnter(ScreenStack stack)
     {
         _loadingToken = new CancellationTokenSource();
-        base.OnEnter(screenHub);
+        base.OnEnter(stack);
         Task.Run(() =>
         {
-            var t = Task.Run(() => { Load(screenHub); });
+            var t = Task.Run(() => { Load(stack); });
             while (true)
             {
                 if (t.IsCompleted)
                 {
                     _ready = true;
-                    screenHub.Redraw();
+                    stack.Redraw();
                     _loadingToken.Dispose();
                     _loadingToken = null;
                     if (t.IsFaulted)
@@ -44,7 +44,7 @@ public abstract class LongLoadingListScreen : ListScreen
                 }
 
                 Thread.Sleep(100);
-                screenHub.Redraw();
+                stack.Redraw();
             }
         }, _loadingToken.Token);
     }

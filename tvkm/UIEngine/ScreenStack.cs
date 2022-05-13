@@ -11,13 +11,15 @@ public class ScreenStack
     private readonly Stack<IScreen> _screens = new();
 
     public bool Empty => _screens.Count == 0;
+
+    public ScreenHub hub => _hub;
     
     public void Push(IScreen s)
     {
         if (_screens.Count > 0)
             _screens.Peek().OnPause();
         _screens.Push(s);
-        s.OnEnter(_hub);
+        s.OnEnter(this);
         _hub.Redraw();
     }
 

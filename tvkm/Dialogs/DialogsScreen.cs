@@ -502,9 +502,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
-    public void OnEnter(ScreenHub h)
+    public void OnEnter(ScreenStack stack)
     {
-        _hub = h;
+        _hub = stack.hub;
         OpenDialog(null);
         FetchPeersList();
         LongpollDaemon.OnNewMessage += OnNewMessage;

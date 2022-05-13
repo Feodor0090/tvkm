@@ -5,7 +5,7 @@ public interface IScreen
     public void Draw();
     public void HandleKey(ScreenHub sh, InputEvent e);
 
-    public void OnEnter(ScreenHub screenHub);
+    public void OnEnter(ScreenStack stack);
 
     public void OnPause();
 

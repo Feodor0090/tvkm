@@ -116,7 +116,7 @@ public class ListScreen : List<IItem>, IScreen
     protected static int ContentH => BufferHeight - 3;
     public int SelectedItemGlobalY => this.Take(_selectedItem).Sum(x => x.Height);
 
-    public virtual void OnEnter(ScreenHub screenHub)
+    public virtual void OnEnter(ScreenStack stack)
     {
     }
 

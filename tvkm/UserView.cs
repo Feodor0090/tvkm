@@ -20,7 +20,7 @@ public class UserView : LongLoadingListScreen
         _api = api;
     }
 
-    protected override void Load(ScreenHub hub)
+    protected override void Load(ScreenStack stack)
     {
         Add(new Button("Открыть переписку", () =>
         {

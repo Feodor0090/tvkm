@@ -44,7 +44,7 @@ public class App : ListScreen
 
     #region Screen control
 
-    public override void OnEnter(ScreenHub screenHub)
+    public override void OnEnter(ScreenStack stack)
     {
         ConfigManager.ReadSettings();
         UserId = (int) (_api.UserId ?? 0);

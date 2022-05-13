@@ -18,7 +18,7 @@ public sealed class FriendsList : LongLoadingListScreen
     private readonly VkApi _api;
 
     /// <inheritdoc />
-    protected override void Load(ScreenHub hub)
+    protected override void Load(ScreenStack stack)
     {
         var list = _api.Friends.Get(new FriendsGetParams
         {
