@@ -9,42 +9,34 @@ public abstract class DialogsScreenBase
 {
     protected DialogsScreenBase(VkApi api)
     {
-        if (Inst != null) throw new InvalidOperationException("DialogsScreen already exists.");
         _api = api;
-        Inst = this;
     }
 
-    protected List<DialogItem> Peers = new();
-
+    protected readonly List<DialogItem> Peers = new();
     protected List<MsgItem>? Msgs;
-
-    protected static DialogsScreenBase? Inst;
-
     private readonly VkApi _api;
 
-    protected static long CurrentDialog { get; private set; }
+    protected long CurrentDialog { get; private set; }
 
-    protected string ActiveDialogName = "Ни один диалог не открыт";
+    protected string ActiveDialogName = EmptyChatTitle;
+
+    public const string EmptyChatTitle = "Ни один диалог не открыт";
 
     public void OpenDialog(long peerId, string peerName)
     {
-        if (peerId == 0)
-        {
-            ActiveDialogName = "Ни один диалог не открыт";
-            Msgs = null;
-            CurrentDialog = 0;
-            return;
-        }
-
+        ActiveDialogName = peerId == 0 ? EmptyChatTitle : peerName;
         CurrentDialog = peerId;
-        ActiveDialogName = peerName;
-        LoadHistory(peerId);
+        
+        if (peerId == 0)
+            Msgs = null;
+        else
+            LoadHistory(peerId);
     }
 
     public void OpenDialog(DialogItem? d)
     {
         if (d == null)
-            OpenDialog(0, "");
+            OpenDialog(0, string.Empty);
         else
             OpenDialog(d.PeerId, d.PeerName);
     }
@@ -57,14 +49,13 @@ public abstract class DialogsScreenBase
         lock (Peers)
         {
             Peers.Clear();
-            foreach (var x in l)
+            foreach (var (user, peer) in l)
             {
-                var peerId = (int) x.Item2.Conversation.Peer.Id;
-                var unread = (int) (x.Item2.Conversation.UnreadCount ?? 0);
-                var name = x.Item1.Id != 0 ? x.Item1.Name : x.Item2.Conversation.ChatSettings?.Title ?? "UNTITLED_CHAT";
-                Peers.Add(new DialogItem(peerId, name)
+                var conv = peer.Conversation;
+                var name = user.Id != 0 ? user.Name : conv.ChatSettings?.Title ?? "UNTITLED_CHAT";
+                Peers.Add(new DialogItem(conv.Peer.Id, name, this)
                 {
-                    UnreadCount = unread
+                    UnreadCount = (int) (conv.UnreadCount ?? 0)
                 });
             }
         }
@@ -77,10 +68,6 @@ public abstract class DialogsScreenBase
             var m = _api.Messages.GetHistory(
                 new MessagesGetHistoryParams {Count = 100, Extended = true, PeerId = peer});
             var u = VkUser.ToUsers(m.Users, m.Groups);
-            foreach (var x in u)
-            {
-                x.Cache();
-            }
 
             Msgs = VkUser.MapObjectsWithUsers(m.Messages, u, x => (int) (x.FromId ?? 0))
                 .Select(x => new MsgItem(x.Item1.Id != 0 ? x.Item1 : VkUser.Get(0, _api), x.Item2))
@@ -111,8 +98,7 @@ public abstract class DialogsScreenBase
 
     protected void ReportRead(long peer, long id)
     {
-        if (!Settings.SendReadEvent) return;
-        _api.Messages.MarkAsRead(peer.ToString(), id);
+        if (Settings.SendReadEvent) _api.Messages.MarkAsRead(peer.ToString(), id);
     }
 
     protected Message ToFull(LongpollDaemon.LongpollMessage msg) => msg.LoadFull(_api);

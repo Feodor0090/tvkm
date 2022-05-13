@@ -41,7 +41,7 @@ public readonly struct VkUser
         return new VkUser(id, GetName(id, api));
     }
 
-    public void Cache()
+    private void Cache()
     {
         if (!NamesCache.ContainsKey(Id) && Id != 0) NamesCache.Add(Id, Name);
     }

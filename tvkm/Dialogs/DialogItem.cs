@@ -4,14 +4,16 @@ namespace tvkm.Dialogs;
 
 public sealed class DialogItem : IItem
 {
-    public readonly int PeerId;
+    public readonly long PeerId;
     public readonly string PeerName;
+    private readonly DialogsScreenBase? _target;
     public int UnreadCount;
 
-    public DialogItem(int id, string name)
+    public DialogItem(long id, string name, DialogsScreenBase? target)
     {
         PeerId = id;
         PeerName = name;
+        _target = target;
     }
 
     public void Draw(bool selected)
@@ -30,7 +32,7 @@ public sealed class DialogItem : IItem
     {
         if (e.Action != InputAction.Activate) return;
         UnreadCount = 0;
-        DialogsScreen.Open(this);
+        _target?.OpenDialog(this);
     }
 
     public int Height => 1;

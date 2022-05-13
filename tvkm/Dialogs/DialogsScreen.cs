@@ -8,12 +8,6 @@ namespace tvkm.Dialogs;
 
 public class DialogsScreen : DialogsScreenBase, IScreen
 {
-    public static void Open(DialogItem? d)
-    {
-        Inst?.OpenDialog(d);
-    }
-
-
     private int _selectedPeerItem;
 
     public FocusedSection Focus = FocusedSection.PeersList;
@@ -526,7 +520,6 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         LongpollDaemon.OnNewMessage -= OnNewMessage;
         LongpollDaemon.OnMessageEdit -= OnMessageEdit;
         LongpollDaemon.OnMessageWrite -= OnMessageWrite;
-        Inst = null;
     }
 
     public IItem? Current => null;
