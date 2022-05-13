@@ -26,7 +26,7 @@ public sealed class DialogItem : IItem
         Console.Write(stp.PadRightOrTrim(DialogsScreen.DialTabW - 2));
     }
 
-    public void HandleKey(InputEvent e)
+    public void HandleKey(InputEvent e, ScreenHub hub = null!)
     {
         if (e.Action != InputAction.Activate) return;
         UnreadCount = 0;

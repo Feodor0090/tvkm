@@ -107,7 +107,7 @@ public class ListScreen : List<IItem>, IScreen
                 return;
             }
             default:
-                this[_selectedItem].HandleKey(e);
+                this[_selectedItem].HandleKey(e, sh);
                 return;
         }
     }

@@ -51,7 +51,7 @@ public class TextField : IItem
         Console.Write((char)0x255D);
     }
 
-    public void HandleKey(InputEvent e)
+    public void HandleKey(InputEvent e, ScreenHub hub)
     {
         if (e.Key == ConsoleKey.Backspace)
             if (_text.Count > 0)

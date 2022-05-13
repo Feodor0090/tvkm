@@ -27,7 +27,7 @@ public class Button : IItem
         Console.WriteLine(bottom);
     }
 
-    public void HandleKey(InputEvent e)
+    public void HandleKey(InputEvent e, ScreenHub hub)
     {
         if (e.Action == InputAction.Activate) action();
     }

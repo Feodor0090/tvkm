@@ -26,21 +26,19 @@ public sealed class FriendsList : LongLoadingListScreen
             UserId = _api.UserId ?? 0,
             Fields = ProfileFields.All,
         });
-        AddRange(list.Select(x => new FriendItem(new VkUser(x), _api, hub)));
+        AddRange(list.Select(x => new FriendItem(new VkUser(x), _api)));
     }
 
     private sealed class FriendItem : IItem
     {
-        public FriendItem(VkUser user, VkApi api, ScreenHub hub)
+        public FriendItem(VkUser user, VkApi api)
         {
             _user = user;
             _api = api;
-            _hub = hub;
         }
 
         private readonly VkUser _user;
         private readonly VkApi _api;
-        private readonly ScreenHub _hub;
 
         public void Draw(bool selected)
         {
@@ -48,11 +46,12 @@ public sealed class FriendsList : LongLoadingListScreen
             Write("  ");
             Write(_user.Name);
         }
-        public void HandleKey(InputEvent e)
+
+        public void HandleKey(InputEvent e, ScreenHub hub)
         {
             if (e.Action == InputAction.Activate)
             {
-                _hub.Push(new UserView(_user, _hub, _api));
+                hub.Push(new UserView(_user, hub, _api));
             }
         }
 
