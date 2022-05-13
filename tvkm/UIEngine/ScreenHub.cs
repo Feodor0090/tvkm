@@ -7,18 +7,17 @@ public sealed class ScreenHub
         _render = Thread.CurrentThread;
         _input = new Thread(HandleInput);
         _scheme = scheme;
+        _screens = new ScreenStack(this);
     }
 
     private readonly IControlsSchemeProvider _scheme;
-    private readonly Stack<IScreen> _screens = new();
+    private readonly ScreenStack _screens;
     private readonly Thread _render;
     private readonly Thread _input;
     private bool _redraw = true;
 
     private int _lastW;
     private int _lastH;
-
-    public App? MainScreen => _screens.FirstOrDefault(x => x is App) as App;
 
     public void CancelRedraw()
     {
@@ -29,7 +28,7 @@ public sealed class ScreenHub
     {
         if (_render != Thread.CurrentThread) throw new InvalidOperationException();
         _input.Start();
-        while (_screens.Count > 0)
+        while (!_screens.Empty)
         {
             try
             {
@@ -56,7 +55,7 @@ public sealed class ScreenHub
     {
         _lastW = Console.BufferWidth;
         _lastH = Console.BufferHeight;
-        while (_screens.Count > 0)
+        while (!_screens.Empty)
         {
             if (!Console.KeyAvailable)
             {
@@ -72,8 +71,8 @@ public sealed class ScreenHub
             }
 
             var k = Console.ReadKey(true);
-            if (!_screens.TryPeek(out var s))
-                return;
+            var s = _screens.Peek();
+            if (s == null) return;
 
             if (k.Key == ConsoleKey.R && k.Modifiers == ConsoleModifiers.Control)
             {
@@ -102,23 +101,16 @@ public sealed class ScreenHub
 
     public void Push(IScreen s)
     {
-        if (_screens.Count > 0)
-            _screens.Peek().OnPause();
         _screens.Push(s);
-        s.OnEnter(this);
-        Redraw();
     }
 
     public void Back()
     {
-        _screens.Pop().OnLeave();
-        if (_screens.TryPeek(out var s))
-            s.OnResume();
+        _screens.Back();
     }
 
     public void BackThenPush(IScreen s)
     {
-        Back();
-        Push(s);
+        _screens.BackThenPush(s);
     }
 }
