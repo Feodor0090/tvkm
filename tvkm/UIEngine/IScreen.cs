@@ -3,7 +3,7 @@ namespace tvkm.UIEngine;
 public interface IScreen
 {
     public void Draw();
-    public void HandleKey(ScreenHub sh, InputEvent e);
+    public void HandleKey(InputEvent e, ScreenStack stack);
 
     public void OnEnter(ScreenStack stack);
 

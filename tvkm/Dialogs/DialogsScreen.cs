@@ -275,8 +275,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
-    public void HandleKey(ScreenHub sh, InputEvent e)
+    public void HandleKey(InputEvent e, ScreenStack stack)
     {
+        var sh = stack.Hub;
         void RedrawInput()
         {
             lock (sh)
@@ -504,7 +505,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     public void OnEnter(ScreenStack stack)
     {
-        _hub = stack.hub;
+        _hub = stack.Hub;
         OpenDialog(null);
         FetchPeersList();
         LongpollDaemon.OnNewMessage += OnNewMessage;

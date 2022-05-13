@@ -12,7 +12,7 @@ public class ScreenStack
 
     public bool Empty => _screens.Count == 0;
 
-    public ScreenHub hub => _hub;
+    public ScreenHub Hub => _hub;
     
     public void Push(IScreen s)
     {

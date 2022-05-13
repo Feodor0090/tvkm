@@ -86,8 +86,8 @@ public sealed class ScreenHub
                 continue;
             }
 
-            s.HandleKey(this,
-                new InputEvent(_scheme.ToAction(k, _screens.Peek().Current), k.Modifiers, k.Key, k.KeyChar));
+            s.HandleKey(
+                new InputEvent(_scheme.ToAction(k, _screens.Peek().Current), k.Modifiers, k.Key, k.KeyChar), _screens);
             if (_redraw) Redraw();
             _redraw = true;
         }

@@ -47,11 +47,11 @@ public sealed class FriendsList : LongLoadingListScreen
             Write(_user.Name);
         }
 
-        public void HandleKey(InputEvent e, ScreenHub hub)
+        public void HandleKey(InputEvent e, ScreenStack stack)
         {
             if (e.Action == InputAction.Activate)
             {
-                hub.Push(new UserView(_user, hub, _api));
+                stack.Push(new UserView(_user, stack.Hub, _api));
             }
         }
 

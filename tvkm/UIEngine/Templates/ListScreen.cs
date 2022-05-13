@@ -85,7 +85,7 @@ public class ListScreen : List<IItem>, IScreen
         }
     }
 
-    public virtual void HandleKey(ScreenHub sh, InputEvent e)
+    public virtual void HandleKey(InputEvent e, ScreenStack stack)
     {
         switch (e.Action)
         {
@@ -103,11 +103,11 @@ public class ListScreen : List<IItem>, IScreen
             }
             case InputAction.Return:
             {
-                sh.Back();
+                stack.Back();
                 return;
             }
             default:
-                this[_selectedItem].HandleKey(e, sh);
+                this[_selectedItem].HandleKey(e, stack);
                 return;
         }
     }
