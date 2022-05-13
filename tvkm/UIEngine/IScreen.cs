@@ -12,4 +12,6 @@ public interface IScreen
     public void OnResume();
 
     public void OnLeave();
+
+    public IItem? Current { get; }
 }

@@ -4,7 +4,7 @@ namespace tvkm;
 
 public class DefaultControlsScheme : IControlsSchemeProvider
 {
-    public InputAction ToAction(ConsoleKeyInfo key)
+    public InputAction ToAction(ConsoleKeyInfo key, IItem? currentItem)
     {
         switch (key.Key)
         {

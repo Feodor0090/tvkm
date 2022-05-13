@@ -131,4 +131,6 @@ public class ListScreen : List<IItem>, IScreen
     public virtual void OnLeave()
     {
     }
+
+    public IItem? Current => Count == 0 ? null : this[_selectedItem];
 }

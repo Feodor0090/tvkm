@@ -528,6 +528,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         Inst = null;
     }
 
+    public IItem? Current => null;
+
     private enum FocusedSection : byte
     {
         PeersList,

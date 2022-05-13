@@ -66,6 +66,7 @@ public sealed class ScreenHub
                     _lastH = Console.BufferHeight;
                     Redraw();
                 }
+
                 Thread.Sleep(50);
                 continue;
             }
@@ -73,7 +74,7 @@ public sealed class ScreenHub
             var k = Console.ReadKey(true);
             if (!_screens.TryPeek(out var s))
                 return;
-            
+
             if (k.Key == ConsoleKey.R && k.Modifiers == ConsoleModifiers.Control)
             {
                 Redraw();
@@ -86,7 +87,8 @@ public sealed class ScreenHub
                 continue;
             }
 
-            s.HandleKey(this, new InputEvent(_scheme.ToAction(k), k.Modifiers, k.Key, k.KeyChar));
+            s.HandleKey(this,
+                new InputEvent(_scheme.ToAction(k, _screens.Peek().Current), k.Modifiers, k.Key, k.KeyChar));
             if (_redraw) Redraw();
             _redraw = true;
         }
