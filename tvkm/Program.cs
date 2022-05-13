@@ -8,7 +8,7 @@ namespace tvkm;
 public static class Program
 {
     private static readonly ScreenHub hub = new ScreenHub(new DefaultControlsScheme());
-    private static App _app;
+    public static App _app;
 
     private sealed class StartupScreen : ListScreen
     {
@@ -48,7 +48,12 @@ public static class Program
                         hub.Push(new AlertPopup(error, hub));
                         return;
                     }
+
                     hub.BackThenPush(_app);
+                }
+                catch (OperationCanceledException)
+                {
+                    // do nothing
                 }
                 catch
                 {
