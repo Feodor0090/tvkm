@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using tvkm.UIEngine;
+using tvkm.UIEngine.Templates;
+
 namespace tvkm;
 
 public static class Settings
@@ -35,6 +39,25 @@ public static class Settings
             else if (field.FieldType == typeof(ConsoleColor))
             {
                 field.SetValue(null, (ConsoleColor) int.Parse(pair.Value));
+            }
+        }
+    }
+
+    public static void TryOpenBrowser(string url, ScreenHub sh)
+    {
+        try
+        {
+            Process.Start(BrowserPath, url);
+        }
+        catch
+        {
+            if (BrowserPath.Contains("w3m"))
+            {
+                sh.Push(new AlertPopup("Не удалось запустить W3M - он задан как браузер для открытия URL. Проверьте его установку или отредактируйте конфигурацию для использования другого браузера.", sh));
+            }
+            else
+            {
+                sh.Push(new AlertPopup("Не удалось запустить ваш браузер. Проверьте файл конфигурации.", sh));
             }
         }
     }

@@ -25,7 +25,7 @@ public static class Program
                     hub.Push(new AlertPopup("Нет сохранённой сессии.", hub));
             }));
             Add(new Button("Вход по логину/паролю", () => hub.Push(new LoginScreen())));
-            Add(new Button("GitHub", () => { Process.Start(Settings.BrowserPath, "github.com/Feodor0090"); }));
+            Add(new Button("GitHub", () => { Settings.TryOpenBrowser( "github.com/Feodor0090", hub); }));
             Add(new Button("Закрыть", hub.Back));
         }
     }
