@@ -23,6 +23,7 @@ public class ConfigManager
             sw.Write($"# Это пустой конфигурационный файл для TVKM. Загляните на GitHub для получения информации о его создании.\n\n" +
                      $"# BrowserPath: /usr/bin/w3m\n" +
                      $"# ImageViewerPath: /usr/bin/ristretto\n" +
+                     $"# PlayerPath: /usr/bin/vlc" +
                      $"# SendReadEvent: true");
             sw.Flush();
         }

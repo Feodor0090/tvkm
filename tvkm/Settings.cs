@@ -8,6 +8,7 @@ public static class Settings
 {
     public static string BrowserPath = "/usr/bin/w3m";
     public static string ImageViewerPath = "/usr/bin/ristretto";
+    public static string PlayerPath = "/usr/bin/vlc";
     public static int LongpollTimeout = 25;
     public static int LongpollErrorPause = 5;
     public static bool SendReadEvent = true;
