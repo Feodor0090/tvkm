@@ -8,6 +8,7 @@ public class ScreenStack
     {
         _hub = hub;
     }
+
     private readonly Stack<IScreen> _screens = new();
 
     public bool Empty => _screens.Count == 0;
@@ -16,7 +17,9 @@ public class ScreenStack
     public ScreenHub Hub => _hub;
 
     public Object PartialDrawLock => _hub;
-    
+
+    public App? App => _screens.OfType<App>().FirstOrDefault();
+
     public void Push(IScreen s)
     {
         if (_screens.Count > 0)
@@ -53,5 +56,12 @@ public class ScreenStack
     public void Redraw()
     {
         _hub.Redraw();
+    }
+
+    public void ClearThenPush(IScreen s)
+    {
+        while (_screens.Count > 0)
+            Back();
+        Push(s);
     }
 }

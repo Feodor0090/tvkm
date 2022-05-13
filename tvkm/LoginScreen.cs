@@ -6,7 +6,7 @@ namespace tvkm;
 
 internal sealed class LoginScreen : ListScreen
 {
-    public LoginScreen(ScreenStack stack) : base("Вход в аккаунт VK")
+    public LoginScreen(ScreenStack stack, App app) : base("Вход в аккаунт VK")
     {
         var login = new TextField("Логин");
         var password = new TextField("Пароль") { ShowChars = false };
@@ -16,14 +16,14 @@ internal sealed class LoginScreen : ListScreen
         {
             try
             {
-                var error = Program.App.AuthByPassword(login.Text, password.Text);
+                var error = app.AuthByPassword(login.Text, password.Text);
                 if (error != null)
                 {
                     stack.Push(new AlertPopup(error, stack));
                     return;
                 }
 
-                stack.BackThenPush(Program.App);
+                stack.BackThenPush(app);
             }
             catch (OperationCanceledException)
             {

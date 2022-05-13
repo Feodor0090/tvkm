@@ -93,7 +93,7 @@ public sealed class ScreenHub
             }
 
             s.HandleKey(
-                new InputEvent(_scheme.ToAction(k, _screens.Peek().Current), k.Modifiers, k.Key, k.KeyChar), _screens);
+                new InputEvent(_scheme.ToAction(k, s.Current), k.Modifiers, k.Key, k.KeyChar), _screens);
             if (_redraw) Redraw();
             _redraw = true;
         }
@@ -102,5 +102,10 @@ public sealed class ScreenHub
     public void Redraw()
     {
         _render.Interrupt();
+    }
+
+    public ScreenStack this[int index]
+    {
+        get => _screens;
     }
 }

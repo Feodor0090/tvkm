@@ -278,13 +278,14 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     public void HandleKey(InputEvent e, ScreenStack stack)
     {
         var sh = stack.Hub;
+        var l = stack.PartialDrawLock;
         void RedrawInput()
         {
-            lock (sh)
+            lock (l)
             {
                 CursorLeft = 1;
                 PrintInput();
-                sh.CancelRedraw();
+                stack.CancelRedraw();
                 FixCursorLocation();
             }
         }
@@ -295,7 +296,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 switch (e.Action)
                 {
                     case InputAction.Return:
-                        sh.CurrentTab.Back();
+                        stack.Back();
                         return;
                     case InputAction.MoveDown:
                         _selectedPeerItem++;
@@ -310,7 +311,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                     case InputAction.Activate:
                         Peers[_selectedPeerItem].HandleKey(e);
                         Focus = FocusedSection.InputField;
-                        lock (sh)
+                        lock (l)
                         {
                             RedrawAllMessages();
                             DrawAllBorders();
@@ -320,7 +321,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 }
 
 
-                lock (sh)
+                lock (l)
                 {
                     DrawPeersList();
                     sh.CancelRedraw();
