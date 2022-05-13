@@ -28,7 +28,7 @@ public class App : ListScreen
             {
                 try
                 {
-                    stack.Push(new DialogsScreen(_api));
+                    stack.Push(new DialogsScreen(_api, stack));
                 }
                 catch (HttpRequestException)
                 {

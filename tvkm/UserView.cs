@@ -44,9 +44,9 @@ public class UserView : LongLoadingListScreen
         Add(new Button("Открыть переписку", () =>
         {
             DialogsScreen d;
-            stack.Push(d = new DialogsScreen(_api));
+            stack.Push(d = new DialogsScreen(_api, stack));
             d.OpenDialog(_user.Id, _user.Name);
-            d.Focus = DialogsScreen.FocusedSection.InputField;
+            d.Focus = DialogsSection.InputField;
         }));
     }
 }

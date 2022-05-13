@@ -3,6 +3,9 @@ using tvkm.UIEngine;
 using VkNet;
 using VkNet.Model;
 using static System.Console;
+using static tvkm.Api.LongpollDaemon;
+using static tvkm.Dialogs.DialogsSection;
+using static tvkm.Settings;
 
 namespace tvkm.Dialogs;
 
@@ -10,37 +13,39 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 {
     private int _selectedPeerItem;
 
-    public FocusedSection Focus = FocusedSection.PeersList;
+    public DialogsSection Focus = PeersList;
 
     private readonly List<char> _message = new();
     private int _messageFieldCursorX;
 
-    private ScreenStack? _stack;
+    private readonly ScreenStack _stack;
 
     public const int DialTabW = 50;
     private const string DateFormat = " [hh:mm]: ";
 
-    public DialogsScreen(VkApi api) : base(api)
+    public DialogsScreen(VkApi api, ScreenStack stack) : base(api)
     {
+        _stack = stack;
     }
 
+    #region Draw utils
 
     private static void DrawBlockTitle(int w, string t)
     {
-        Write((char)0x250C);
-        Write((char)0x2500);
+        Write((char) 0x250C);
+        Write((char) 0x2500);
         Write(t);
         for (var i = 2 + t.Length; i < w - 1; i++)
-            Write((char)0x2500);
-        Write((char)0x2510);
+            Write((char) 0x2500);
+        Write((char) 0x2510);
     }
 
     private static void DrawBlockBottom(int w)
     {
-        Write((char)0x2514);
+        Write((char) 0x2514);
         for (var i = 1; i < w - 1; i++)
-            Write((char)0x2500);
-        Write((char)0x2518);
+            Write((char) 0x2500);
+        Write((char) 0x2518);
     }
 
     private static void DrawBorder(int x, int y, int w, int h, string title, ConsoleColor clr)
@@ -51,9 +56,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         for (var i = 0; i < h - 2; i++)
         {
             SetCursorPosition(x, y + 1 + i);
-            Write((char)0x2502);
+            Write((char) 0x2502);
             SetCursorPosition(x + w - 1, y + 1 + i);
-            Write((char)0x2502);
+            Write((char) 0x2502);
         }
 
         SetCursorPosition(x, y + h - 1);
@@ -64,52 +69,50 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     {
         int h = BufferHeight, w = BufferWidth;
         DrawBorder(0, h - 3, w, 3, "Ваше сообщение",
-            Focus == FocusedSection.InputField ? ConsoleColor.Yellow : ConsoleColor.White);
+            Focus == InputField ? ConsoleColor.Yellow : ConsoleColor.White);
         DrawBorder(DialTabW, 0, w - DialTabW, h - 3, ActiveDialogName, ConsoleColor.White);
     }
+
+    private static void FillSpace(int width) => Write(new string(' ', width));
+
+    #endregion
 
     private void DrawPeersList()
     {
         var i = 0;
-        int h = BufferHeight - 5;
+        var h = BufferHeight - 5;
         if (Peers.Count > h)
         {
             if (_selectedPeerItem > h / 2)
-                i = _selectedPeerItem - (h / 2);
+                i = _selectedPeerItem - h / 2;
             if (_selectedPeerItem > Peers.Count - h / 2 - 1)
-            {
                 i = Peers.Count - h;
-            }
         }
 
-        int j = 1;
-        for (; i < Peers.Count && j < BufferHeight - 4; i++)
+        var j = 1;
+        for (; i < Peers.Count && j < h + 1; i++)
         {
             SetCursorPosition(1, j);
-            Peers[i].Draw(Focus == FocusedSection.PeersList && i == _selectedPeerItem);
+            Peers[i].Draw(Focus == PeersList && i == _selectedPeerItem);
             j++;
         }
 
         DrawBorder(0, 0, DialTabW, BufferHeight - 3, "Список диалогов",
-            Focus == FocusedSection.PeersList ? ConsoleColor.Yellow : ConsoleColor.White);
+            Focus == PeersList ? SelectionColor : DefaultColor);
 
-        float scrollProgress = (float)_selectedPeerItem / Peers.Count;
-        int scrollCursorY = (int)(scrollProgress * h + 1);
+        var scrollProgress = (float) _selectedPeerItem / Peers.Count;
+        var scrollCursorY = (int) (scrollProgress * h + 1);
         SetCursorPosition(DialTabW - 1, scrollCursorY);
-        Write((char)0x2588);
+        Write((char) 0x2588);
     }
 
     public void Draw()
     {
         DrawAllBorders();
-
         DrawPeersList();
-
         RedrawAllMessages();
-
         SetCursorPosition(1, BufferHeight - 2);
         PrintInput();
-
         FixCursorLocation();
     }
 
@@ -118,86 +121,76 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         if (Msgs == null) return;
 
         var h = BufferHeight;
-        var maxNameL = 0;
-        for (var i = 0; i < Msgs.Count; i++)
-        {
-            maxNameL = Math.Max(maxNameL, Msgs[i].Author.Name.Length);
-        }
-
-        maxNameL += DateFormat.Length;
-        var msgAvailH = h - 5;
-        var contentW = BufferWidth - DialTabW - 2 - maxNameL;
+        var maxNameL = GetMaxSenderNameWidth() + DateFormat.Length;
+        var msgAvailH = h - 5; // vertical space for printing
+        var contentW = BufferWidth - DialTabW - 2 - maxNameL; // horizontal space for printing
         var sm = CalculateFirstMessageIndex(contentW, msgAvailH);
 
         // drawing
         var cursorY = 0;
         for (var i = sm + 1; i < Msgs.Count; i++)
         {
-            var x = Msgs[i];
-            ForegroundColor = x.Author.Id == App.UserId ? ConsoleColor.Green : ConsoleColor.White;
+            var msg = Msgs[i];
+            ForegroundColor = msg.Author.Id == App.UserId ? SpecialColor : DefaultColor;
             SetCursorPosition(DialTabW + 1, ++cursorY);
-            Write((x.Author.Name + x.Time.ToString(DateFormat)).PadLeft(maxNameL));
-            if (x.TextValid)
+            Write((msg.Author.Name + msg.Time.ToString(DateFormat)).PadLeft(maxNameL));
+            if (msg.TextValid)
             {
-                var p = 0;
-                for (var k = 0; k < x.Text.Length; k++)
+                var x = 0;
+                for (var k = 0; k < msg.Text.Length; k++)
                 {
-                    if (p >= contentW)
+                    if (x >= contentW)
                     {
-                        p = 0;
+                        x = 0;
                         SetCursorPosition(DialTabW + 1 + maxNameL, ++cursorY);
                     }
 
-                    switch (x.Text[k])
+                    switch (msg.Text[k])
                     {
                         case '\r':
                             break;
                         case '\n':
-                            Write(new string(' ', contentW - p));
-                            p = int.MaxValue;
+                            FillSpace(contentW - x);
+                            x = int.MaxValue;
                             break;
                         default:
-                            Write(x.Text[k]);
-                            p++;
+                            Write(msg.Text[k]);
+                            x++;
                             break;
                     }
                 }
 
-                Write(new string(' ', contentW - p));
+                FillSpace(contentW - x);
             }
             else
-            {
                 cursorY--;
-            }
 
-            if (x.HasAtts)
+            if (msg.HasAtts)
             {
-                for (int j = 0; j < x.Atts!.Length; j++)
+                for (int j = 0; j < msg.Atts!.Length; j++)
                 {
                     SetCursorPosition(DialTabW + 1 + maxNameL, ++cursorY);
-                    Write($"[{x.Atts[j].Caption}]".PadRight(contentW));
+                    Write($"[{msg.Atts[j].Caption}]".PadRight(contentW));
                 }
             }
 
-            if (x.Reply != null)
+            if (msg.Reply != null)
             {
                 SetCursorPosition(DialTabW + 1 + maxNameL, ++cursorY);
-                Write($"[Ответ {x.Reply.Author.Name}]".PadRight(contentW));
+                Write($"[Ответ {msg.Reply.Author.Name}]".PadRight(contentW));
             }
         }
     }
 
     private void FixCursorLocation()
     {
-        var h = BufferHeight;
         switch (Focus)
         {
-            case FocusedSection.InputField:
-                SetCursorPosition(_messageFieldCursorX + 1, h - 2);
+            case InputField:
+                SetCursorPosition(_messageFieldCursorX + 1, BufferHeight - 2);
                 break;
-            case FocusedSection.PeersList:
-                CursorTop = _selectedPeerItem + 1;
-                CursorLeft = 1;
+            case PeersList:
+                SetCursorPosition(1, _selectedPeerItem + 1);
                 break;
         }
     }
@@ -246,23 +239,30 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         return sm;
     }
 
+    private int GetMaxSenderNameWidth()
+    {
+        var maxNameL = 0;
+        for (var i = 0; i < Msgs.Count; i++)
+            maxNameL = Math.Max(maxNameL, Msgs[i].Author.Name.Length);
+        return maxNameL;
+    }
+
     private void PrintInput()
     {
         lock (this)
         {
-            ForegroundColor = Focus == FocusedSection.InputField ? Settings.SelectionColor : Settings.DefaultColor;
+            ForegroundColor = Focus == InputField ? SelectionColor : DefaultColor;
             if (_message.Count <= BufferWidth - 3)
             {
                 Write(_message.ToArray());
                 for (var i = _message.Count; i < BufferWidth - DialTabW - 3; i++)
                     Write(' ');
+                return;
             }
-            else
+
+            for (var i = _message.Count - (BufferWidth - 3); i < _message.Count; i++)
             {
-                for (var i = _message.Count - (BufferWidth - 3); i < _message.Count; i++)
-                {
-                    Write(_message[i]);
-                }
+                Write(_message[i]);
             }
 
             Write(' ');
@@ -272,6 +272,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     public void HandleKey(InputEvent e, ScreenStack stack)
     {
         var l = stack.PartialDrawLock;
+
         void RedrawInput()
         {
             lock (l)
@@ -285,7 +286,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
         switch (Focus)
         {
-            case FocusedSection.PeersList:
+            case PeersList:
                 switch (e.Action)
                 {
                     case InputAction.Return:
@@ -303,7 +304,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                         break;
                     case InputAction.Activate:
                         Peers[_selectedPeerItem].HandleKey(e);
-                        Focus = FocusedSection.InputField;
+                        Focus = InputField;
                         lock (l)
                         {
                             RedrawAllMessages();
@@ -322,9 +323,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 }
 
                 break;
-            case FocusedSection.MessagesHistory:
+            case MessagesHistory:
                 break;
-            case FocusedSection.InputField:
+            case InputField:
                 lock (this)
                 {
                     switch (e.Action)
@@ -332,7 +333,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                         case InputAction.Return:
                             if (_message.Count == 0)
                             {
-                                Focus = FocusedSection.PeersList;
+                                Focus = PeersList;
                                 OpenDialog(null);
                                 break;
                             }
@@ -398,8 +399,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
+    #region Longpoll handlers
 
-    private void OnNewMessage(LongpollDaemon.LongpollMessage msg)
+    private void OnNewMessage(LongpollMessage msg)
     {
         if (msg.TargetId == CurrentDialog && Msgs != null)
         {
@@ -421,7 +423,6 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             }
 
             Msgs.Add(new MsgItem(GetUser(id), m));
-            if (_stack == null) return;
             lock (_stack.PartialDrawLock)
             {
                 RedrawAllMessages();
@@ -436,13 +437,12 @@ public class DialogsScreen : DialogsScreenBase, IScreen
             var p = Peers.FirstOrDefault(x => x.PeerId == msg.TargetId);
             if (p == null) return;
             p.UnreadCount++;
-            if (Focus != FocusedSection.PeersList)
+            if (Focus != PeersList)
             {
                 Peers.Remove(p);
                 Peers.Insert(0, p);
             }
 
-            if (_stack == null) return;
             lock (_stack.PartialDrawLock)
             {
                 DrawPeersList();
@@ -450,7 +450,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
-    private void OnMessageEdit(LongpollDaemon.LongpollMessageEdit msg)
+    private void OnMessageEdit(LongpollMessageEdit msg)
     {
         //another chat
         if (msg.PeerId != CurrentDialog) return;
@@ -461,7 +461,6 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
         m.Update(ToFull(msg));
 
-        if (_stack == null) return;
         lock (_stack.PartialDrawLock)
         {
             RedrawAllMessages();
@@ -470,9 +469,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     private CancellationTokenSource _typingLabelToken = new();
 
-    private async void OnMessageWrite(LongpollDaemon.LongpollWriteStatus msg)
+    private async void OnMessageWrite(LongpollWriteStatus msg)
     {
-        if (msg.PeerId != CurrentDialog || _stack == null) return;
+        if (msg.PeerId != CurrentDialog) return;
 
         lock (_stack.PartialDrawLock)
         {
@@ -497,9 +496,12 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
+    #endregion
+
+    #region Screen stack event handlers
+
     public void OnEnter(ScreenStack stack)
     {
-        _stack = stack;
         OpenDialog(null);
         FetchPeersList();
         LongpollDaemon.OnNewMessage += OnNewMessage;
@@ -522,12 +524,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         LongpollDaemon.OnMessageWrite -= OnMessageWrite;
     }
 
-    public IItem? Current => null;
+    #endregion
 
-    public enum FocusedSection : byte
-    {
-        PeersList,
-        MessagesHistory,
-        InputField
-    }
+    public IItem? Current => null;
 }

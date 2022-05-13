@@ -13,9 +13,18 @@ public static class Settings
     public static int LongpollErrorPause = 5;
     public static bool SendReadEvent = true;
 
+    /// <summary>
+    /// Color to draw generic elements on screen.
+    /// </summary>
     public static ConsoleColor DefaultColor = ConsoleColor.White;
+    /// <summary>
+    /// Color to draw elements that currently are in focus.
+    /// </summary>
     public static ConsoleColor SelectionColor = ConsoleColor.Yellow;
-    public static ConsoleColor AccentColor = ConsoleColor.Green;
+    /// <summary>
+    /// Color to draw elements that are different from the others.
+    /// </summary>
+    public static ConsoleColor SpecialColor = ConsoleColor.Green;
 
     public static void Apply(Dictionary<string, string> config)
     {

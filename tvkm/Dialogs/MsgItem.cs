@@ -27,6 +27,9 @@ public sealed class MsgItem
 
     public bool HasAtts => Atts is { Length: > 0 };
 
+    /// <summary>
+    /// Is the text of the message is a valid text to display?
+    /// </summary>
     public bool TextValid => Text.Length > 0 && !Text.All(y => y is '\r' or '\n' or ' ');
 
     public void Update(Message msg)

@@ -21,7 +21,7 @@ public sealed class DialogItem : IItem
         if (selected)
             Console.ForegroundColor = Settings.SelectionColor;
         else
-            Console.ForegroundColor = UnreadCount == 0 ? Settings.DefaultColor : Settings.AccentColor;
+            Console.ForegroundColor = UnreadCount == 0 ? Settings.DefaultColor : Settings.SpecialColor;
         var stp = PeerName;
         if (UnreadCount != 0)
             stp = $"(+{UnreadCount}) " + stp;
