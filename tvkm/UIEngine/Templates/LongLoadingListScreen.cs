@@ -1,4 +1,4 @@
-namespace tvkm.UIEngine;
+namespace tvkm.UIEngine.Templates;
 
 using static Console;
 

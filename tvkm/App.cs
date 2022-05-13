@@ -3,9 +3,10 @@ using Newtonsoft.Json;
 using tvkm.Api;
 using tvkm.Dialogs;
 using tvkm.UIEngine;
+using tvkm.UIEngine.Templates;
 using VkNet;
 using VkNet.Model;
-using Button = tvkm.UIEngine.Button;
+using Button = tvkm.UIEngine.Controls.Button;
 
 namespace tvkm;
 
@@ -24,7 +25,7 @@ public class App : ListScreen
         {
             new Button("Лента", () =>
             {
-                sh.Push(new SimpleAlert("Махо пидор", sh));
+                sh.Push(new AlertPopup("Махо пидор", sh));
             }),
             new Button("Сообщения", () =>
             {
@@ -34,7 +35,7 @@ public class App : ListScreen
                 }
                 catch (HttpRequestException)
                 {
-                    sh.Push(new SimpleAlert("Сбой подключения. Проверьте сеть.", sh));
+                    sh.Push(new AlertPopup("Сбой подключения. Проверьте сеть.", sh));
                 }
             }),
             new Button("Друзья", () =>
@@ -43,7 +44,7 @@ public class App : ListScreen
             }),
             new Button("Закрыть сессию", () =>
             {
-                sh.Push(new SimpleAlert("Сделаем позже. Удалите session.txt из рабочей папки.", sh));
+                sh.Push(new AlertPopup("Сделаем позже. Удалите session.txt из рабочей папки.", sh));
             }),
             new Button("Выход", sh.Back),
         });

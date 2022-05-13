@@ -1,6 +1,6 @@
 using static System.Console;
 
-namespace tvkm.UIEngine;
+namespace tvkm.UIEngine.Templates;
 
 public class ListScreen : List<IItem>, IScreen
 {
