@@ -21,7 +21,7 @@ internal sealed class StartupScreen : ListScreen
                 stack.Push(new AlertPopup("Нет сохранённой сессии.", stack));
         }));
         Add(new Button("Вход по логину/паролю", () => stack.Push(new LoginScreen(stack, _app))));
-        Add(new Button("GitHub", () => { ExternalUtils.TryOpenBrowser( "github.com/Feodor0090", stack); }));
+        Add(new Button("GitHub", () => { ExternalUtils.TryOpenBrowser( "github.com/Feodor0090/tvkm", stack); }));
         Add(new Button("Закрыть", stack.Back));
     }
 }
