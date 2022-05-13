@@ -12,6 +12,7 @@ namespace tvkm.Dialogs;
 public class DialogsScreen : DialogsScreenBase, IScreen
 {
     private int _selectedPeerItem;
+    private int _selectedChatItem;
 
     public DialogsSection Focus = PeersList;
 
@@ -131,7 +132,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         for (var i = sm + 1; i < Msgs.Count; i++)
         {
             var msg = Msgs[i];
-            ForegroundColor = msg.Author.Id == App.UserId ? SpecialColor : DefaultColor;
+            ForegroundColor = _selectedChatItem == i ? SelectionColor :
+                msg.Author.Id == App.UserId ? SpecialColor : DefaultColor;
             SetCursorPosition(DialTabW + 1, ++cursorY);
             Write((msg.Author.Name + msg.Time.ToString(DateFormat)).PadLeft(maxNameL));
             if (msg.TextValid)
@@ -305,6 +307,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                     case InputAction.Activate:
                         Peers[_selectedPeerItem].HandleKey(e);
                         Focus = InputField;
+                        _selectedChatItem = Msgs?.Count ?? -1;
                         lock (l)
                         {
                             RedrawAllMessages();
@@ -324,6 +327,34 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
                 break;
             case MessagesHistory:
+                switch (e.Action)
+                {
+                    case InputAction.Return:
+                        Focus = InputField;
+                        _selectedChatItem = -1;
+                        RedrawInput();
+                        break;
+                    case InputAction.MoveUp:
+                        _selectedChatItem--;
+                        break;
+                    case InputAction.MoveDown:
+                        _selectedChatItem++;
+                        if (_selectedChatItem >= Msgs.Count)
+                        {
+                            Focus = InputField;
+                            RedrawInput();
+                        }
+                        break;
+                    case InputAction.Activate:
+                        if (_selectedChatItem >= 0 && _selectedChatItem < Msgs.Count)
+                        {
+                            Msgs[_selectedChatItem].Open(_stack);
+                        }
+                        break;
+                }
+                RedrawAllMessages();
+                FixCursorLocation();
+                _stack.CancelRedraw();
                 break;
             case InputField:
                 lock (this)
@@ -344,14 +375,11 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
                             break;
                         case InputAction.Activate:
-                            if (_message.Count > 0)
+                            if (_message.Count > 0 && Send(new string(_message.ToArray())))
                             {
-                                if (Send(new string(_message.ToArray())))
-                                {
-                                    _message.Clear();
-                                    _messageFieldCursorX = 0;
-                                    RedrawInput();
-                                }
+                                _message.Clear();
+                                _messageFieldCursorX = 0;
+                                RedrawInput();
                             }
 
                             break;
@@ -369,10 +397,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                             else if (e.Key == ConsoleKey.Delete)
                             {
                                 if (_message.Count > 0 && _messageFieldCursorX < _message.Count)
-                                {
                                     _message.RemoveAt(_messageFieldCursorX);
-                                }
-
                                 RedrawInput();
                             }
 
@@ -391,6 +416,11 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                             if (_messageFieldCursorX < _message.Count)
                                 _messageFieldCursorX++;
                             RedrawInput();
+                            break;
+                        case InputAction.MoveUp:
+                            Focus = MessagesHistory;
+                            _selectedChatItem = Msgs.Count - 1;
+                            RedrawAllMessages();
                             break;
                     }
                 }
@@ -422,7 +452,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                 };
             }
 
-            Msgs.Add(new MsgItem(GetUser(id), m));
+            Msgs.Add(new MsgItem(GetUser(id), m, _api));
             lock (_stack.PartialDrawLock)
             {
                 RedrawAllMessages();

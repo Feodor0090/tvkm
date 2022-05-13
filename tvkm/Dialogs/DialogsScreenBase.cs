@@ -14,7 +14,7 @@ public abstract class DialogsScreenBase
 
     protected readonly List<DialogItem> Peers = new();
     protected List<MsgItem>? Msgs;
-    private readonly VkApi _api;
+    protected readonly VkApi _api;
 
     protected long CurrentDialog { get; private set; }
 
@@ -26,7 +26,7 @@ public abstract class DialogsScreenBase
     {
         ActiveDialogName = peerId == 0 ? EmptyChatTitle : peerName;
         CurrentDialog = peerId;
-        
+
         if (peerId == 0)
             Msgs = null;
         else
@@ -70,7 +70,7 @@ public abstract class DialogsScreenBase
             var u = VkUser.ToUsers(m.Users, m.Groups);
 
             Msgs = VkUser.MapObjectsWithUsers(m.Messages, u, x => (int) (x.FromId ?? 0))
-                .Select(x => new MsgItem(x.Item1.Id != 0 ? x.Item1 : VkUser.Get(0, _api), x.Item2))
+                .Select(x => new MsgItem(x.Item1.Id != 0 ? x.Item1 : VkUser.Get(0, _api), x.Item2, _api))
                 .ToList();
             ReportRead(peer, Msgs[0].Id);
             Msgs.Reverse();
