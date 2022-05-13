@@ -13,8 +13,6 @@ public class App : ListScreen
 {
     private readonly VkApi _api = new();
     private ScreenHub sh;
-    private const int VkmId = 2685278;
-    private const string VkmSecret = "lxhD8OD7dMsqtXIm5IUY";
 
     public LongpollDaemon? Longpoll;
     public static int UserId { get; private set; }
@@ -71,7 +69,10 @@ public class App : ListScreen
     
     #region Authorization
     
-    public void Auth(int id, string token) => _api.Authorize(new ApiAuthParams { AccessToken = token, UserId = id });
+    private const int VkmId = 2685278;
+    private const string VkmSecret = "lxhD8OD7dMsqtXIm5IUY";
+
+    private void Auth(long id, string token) => _api.Authorize(new ApiAuthParams { AccessToken = token, UserId = id });
 
     public void RestoreFromFile()
     {
@@ -79,21 +80,28 @@ public class App : ListScreen
         Auth(data.Item1, data.Item2);
     }
 
-    public void AuthByPassword(string login, string password)
+    public string? AuthByPassword(string login, string password)
     {
         using HttpClient http = new();
         http.BaseAddress = new Uri("https://oauth.vk.com");
         var r = http.GetAsync("/token?grant_type=password" +
                               "&client_id=" + VkmId + "&client_secret=" + VkmSecret + "&username=" + login +
                               "&password=" + password +
-                              "&scope=notify,friends,photos,audio,video,docs,notes,pages,status,offers,questions,wall,groups,messages,notifications,stats,ads")
+                              "&2fa_supported=1&scope=notify,friends,photos,audio,video,docs,notes,pages,status,offers,questions,wall,groups,messages,notifications,stats,ads")
             .Result;
+        
+
+        var s = r.Content.ReadAsStringAsync().Result;
+        
         if (r.StatusCode != HttpStatusCode.OK)
             throw new ArgumentException();
-
-        var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(r.Content.ReadAsStringAsync().Result);
+        
+        var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(s);
+        if (dict.ContainsKey("error_description")) 
+            return dict["error_description"];
         Auth(int.Parse(dict["user_id"]), dict["access_token"]);
         ConfigManager.WriteToken(long.Parse(dict["user_id"]), dict["access_token"]);
+        return null;
     }
     
     #endregion

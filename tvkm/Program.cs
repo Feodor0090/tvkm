@@ -40,7 +40,12 @@ public static class Program
             {
                 try
                 {
-                    _app.AuthByPassword(login.Text, password.Text);
+                    var error = _app.AuthByPassword(login.Text, password.Text);
+                    if (error != null)
+                    {
+                        hub.Push(new SimpleAlert(error, hub));
+                        return;
+                    }
                     hub.BackThenPush(_app);
                 }
                 catch

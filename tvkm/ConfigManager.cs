@@ -11,10 +11,10 @@ public class ConfigManager
     /// Reads a file with saved user ID a token to restore a session.
     /// </summary>
     /// <returns>User ID and token.</returns>
-    public static (int, string) ReadSavedToken()
+    public static (long, string) ReadSavedToken()
     {
         var s = File.ReadAllText("session.txt").Split(' ');
-        return (int.Parse(s[0]), s[1]);
+        return (long.Parse(s[0]), s[1]);
     }
 
     public static void WriteToken(long userId, string token)
