@@ -16,7 +16,7 @@ public class App : ListScreen
     private ScreenStack _stack;
 
     public LongpollDaemon? Longpoll;
-    public static int UserId { get; private set; }
+    public int UserId { get; private set; }
 
     public App(ScreenStack stack) : base("TVKM")
     {
@@ -48,8 +48,8 @@ public class App : ListScreen
     {
         ConfigManager.ReadSettings();
         UserId = (int) (_api.UserId ?? 0);
-        Title = $"TVKM - id{_api.UserId ?? 0}";
-        Longpoll = new LongpollDaemon(_api);
+        Title = $"TVKM - id{UserId}";
+        Longpoll = new LongpollDaemon(this, _api);
         Longpoll.Run();
     }
 

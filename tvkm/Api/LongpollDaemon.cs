@@ -8,18 +8,18 @@ namespace tvkm.Api;
 
 public class LongpollDaemon
 {
-    public static bool LongpollIsOk { get; private set; }
-    public static event Action<bool> LongpollStateChange = null!;
-    public static event Action<LongpollMessage> OnNewMessage = null!;
-    public static event Action<LongpollMessageEdit> OnMessageEdit = null!;
-    public static event Action<LongpollWriteStatus> OnMessageWrite = null!;
+    public event Action<LongpollMessage> OnNewMessage = null!;
+    public event Action<LongpollMessageEdit> OnMessageEdit = null!;
+    public event Action<LongpollWriteStatus> OnMessageWrite = null!;
 
 
-    public LongpollDaemon(VkApi api)
+    public LongpollDaemon(App app, VkApi api)
     {
+        _app = app;
         _api = api;
     }
 
+    private readonly App _app;
     private readonly VkApi _api;
     private bool _isRunning;
     private bool _stop;
@@ -32,12 +32,6 @@ public class LongpollDaemon
         Task.Factory.StartNew(LongpollLoop, TaskCreationOptions.LongRunning);
     }
 
-    private static void ReportLongpollState(bool s)
-    {
-        LongpollIsOk = s;
-        LongpollStateChange?.Invoke(s);
-    }
-
     private async void LongpollLoop()
     {
         _isRunning = true;
@@ -47,7 +41,6 @@ public class LongpollDaemon
             try
             {
                 var lpp = await _api.Messages.GetLongPollServerAsync(true);
-                ReportLongpollState(true);
                 var activeTs = lpp.Ts;
 
                 _httpClient?.Dispose();
@@ -73,7 +66,7 @@ public class LongpollDaemon
                         switch (update.Type)
                         {
                             case 4:
-                                OnNewMessage?.Invoke(new LongpollMessage(update, _api));
+                                OnNewMessage?.Invoke(new LongpollMessage(update, _app.UserId));
                                 break;
                             case 5:
                                 OnMessageEdit?.Invoke(new LongpollMessageEdit(update));
@@ -88,7 +81,6 @@ public class LongpollDaemon
             catch
             {
                 if (_stop) return;
-                ReportLongpollState(false);
                 await Task.Delay(Settings.LongpollErrorPause * 1000);
             }
         }
@@ -96,14 +88,13 @@ public class LongpollDaemon
 
     public void Dispose()
     {
-        ReportLongpollState(false);
         _stop = true;
         _httpClient?.Dispose();
     }
 
     public readonly struct LongpollMessage
     {
-        public LongpollMessage(LongpollUpdate upd, IVkApi api)
+        public LongpollMessage(LongpollUpdate upd, long userId)
         {
             var data = upd.Data;
             MessageId = Convert.ToInt32(data[0]);
@@ -111,7 +102,7 @@ public class LongpollDaemon
             TargetId = Convert.ToInt32(data[2]);
             Time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(Convert.ToInt32(data[3]))
                 .ToLocalTime();
-            Text = (string)data[4];
+            Text = (string) data[4];
             Extra = new Dictionary<string, string>();
             var fromId = 0;
             foreach (var dict in data.Skip(5).Cast<JObject>())
@@ -125,7 +116,7 @@ public class LongpollDaemon
                 }
             }
 
-            FromId = fromId != 0 ? fromId : api.UserId ?? 0;
+            FromId = fromId != 0 ? fromId : userId;
         }
 
         public readonly int MessageId;
@@ -138,7 +129,7 @@ public class LongpollDaemon
 
         public Message LoadFull(VkApi api)
         {
-            return api.Messages.GetById(new[] { (ulong)MessageId }, Array.Empty<string>(), 0, true)[0];
+            return api.Messages.GetById(new[] {(ulong) MessageId}, Array.Empty<string>(), 0, true)[0];
         }
     }
 
@@ -157,7 +148,7 @@ public class LongpollDaemon
 
         public Message LoadFull(VkApi api)
         {
-            return api.Messages.GetById(new[] { (ulong)MessageId }, Array.Empty<string>(), 0, true)[0];
+            return api.Messages.GetById(new[] {(ulong) MessageId}, Array.Empty<string>(), 0, true)[0];
         }
     }
 

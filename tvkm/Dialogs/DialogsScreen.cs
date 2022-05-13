@@ -133,7 +133,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         {
             var msg = Msgs[i];
             ForegroundColor = _selectedChatItem == i ? SelectionColor :
-                msg.Author.Id == App.UserId ? SpecialColor : DefaultColor;
+                msg.Author.Id == _stack.App.UserId ? SpecialColor : DefaultColor;
             SetCursorPosition(DialTabW + 1, ++cursorY);
             Write((msg.Author.Name + msg.Time.ToString(DateFormat)).PadLeft(maxNameL));
             if (msg.TextValid)
@@ -534,9 +534,10 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     {
         OpenDialog(null);
         FetchPeersList();
-        LongpollDaemon.OnNewMessage += OnNewMessage;
-        LongpollDaemon.OnMessageEdit += OnMessageEdit;
-        LongpollDaemon.OnMessageWrite += OnMessageWrite;
+        var lpd = _stack.App.Longpoll;
+        lpd.OnNewMessage += OnNewMessage;
+        lpd.OnMessageEdit += OnMessageEdit;
+        lpd.OnMessageWrite += OnMessageWrite;
     }
 
     public void OnPause()
@@ -549,9 +550,10 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     public void OnLeave()
     {
-        LongpollDaemon.OnNewMessage -= OnNewMessage;
-        LongpollDaemon.OnMessageEdit -= OnMessageEdit;
-        LongpollDaemon.OnMessageWrite -= OnMessageWrite;
+        var lpd = _stack.App.Longpoll;
+        lpd.OnNewMessage -= OnNewMessage;
+        lpd.OnMessageEdit -= OnMessageEdit;
+        lpd.OnMessageWrite -= OnMessageWrite;
     }
 
     #endregion
