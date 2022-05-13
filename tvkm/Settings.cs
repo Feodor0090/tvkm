@@ -43,23 +43,4 @@ public static class Settings
             }
         }
     }
-
-    public static void TryOpenBrowser(string url, ScreenStack stack)
-    {
-        try
-        {
-            Process.Start(BrowserPath, url);
-        }
-        catch
-        {
-            if (BrowserPath.Contains("w3m"))
-            {
-                stack.Push(new AlertPopup("Не удалось запустить W3M - он задан как браузер для открытия URL. Проверьте его установку или отредактируйте конфигурацию для использования другого браузера.", stack));
-            }
-            else
-            {
-                stack.Push(new AlertPopup("Не удалось запустить ваш браузер. Проверьте файл конфигурации.", stack));
-            }
-        }
-    }
 }
