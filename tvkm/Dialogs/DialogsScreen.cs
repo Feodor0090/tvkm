@@ -350,7 +350,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                         {
                             Msgs[_selectedChatItem].Open(_stack);
                         }
-                        break;
+                        return;
                 }
                 RedrawAllMessages();
                 FixCursorLocation();

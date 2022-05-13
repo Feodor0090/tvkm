@@ -40,6 +40,19 @@ public static class ExternalUtils
         return path;
     }
 
+    public static void TryPlayMediaAsIs(string url, ScreenStack stack)
+    {
+        try
+        {
+            Console.SetCursorPosition(0,0);
+            Process.Start(Settings.PlayerPath, url);
+        }
+        catch
+        {
+            stack.Push(new AlertPopup("Не удалось запустить ваш плеер.",
+                stack));
+        }
+    }
     public static void TryViewPhoto(Photo photo, ScreenStack stack)
     {
         var size = photo.Sizes.OrderBy(x => x.Width).FirstOrDefault();

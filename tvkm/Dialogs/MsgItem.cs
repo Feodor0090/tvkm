@@ -62,7 +62,7 @@ public sealed class MsgItem
         if(Atts!=null)
             foreach (var att in Atts)
             {
-                s.Add(new Button(att.Caption, () => { }));
+                s.Add(new Button(att.Caption, () => att.View(stack)));
             }
         
         stack.Push(s);
