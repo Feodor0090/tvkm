@@ -6,11 +6,11 @@ public sealed class ScreenHub
     {
         _render = Thread.CurrentThread;
         _input = new Thread(HandleInput);
-        _scheme = scheme;
+        Scheme = scheme;
         _screens = new ScreenStack(this);
     }
 
-    private readonly IControlsSchemeProvider _scheme;
+    public IControlsSchemeProvider Scheme { get; set; }
     private readonly ScreenStack _screens;
     private readonly Thread _render;
     private readonly Thread _input;
@@ -87,7 +87,7 @@ public sealed class ScreenHub
             }
 
             s.HandleKey(
-                new InputEvent(_scheme.ToAction(k, s.Current), k.Modifiers, k.Key, k.KeyChar), _screens);
+                new InputEvent(Scheme.ToAction(k, s.Current), k.Modifiers, k.Key, k.KeyChar), _screens);
             if (_redraw) Redraw();
             _redraw = true;
         }
