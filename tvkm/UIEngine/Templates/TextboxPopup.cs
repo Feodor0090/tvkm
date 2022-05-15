@@ -2,7 +2,10 @@ using tvkm.UIEngine.Controls;
 
 namespace tvkm.UIEngine.Templates;
 
-public class TextboxPopup : ListScreen
+/// <summary>
+/// List screen with a text field and "submit" button.
+/// </summary>
+public sealed class TextboxPopup : ListScreen
 {
     private readonly TextField field;
     private readonly Action<string> _onSubmit;

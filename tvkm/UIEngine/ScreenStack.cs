@@ -2,10 +2,20 @@ using tvkm.UIEngine.Templates;
 
 namespace tvkm.UIEngine;
 
+/// <summary>
+/// TVKM screen stack is an object that handles a list of screens that user can navigate through.
+/// </summary>
 public class ScreenStack
 {
+    /// <summary>
+    /// Hub instance.
+    /// </summary>
     private readonly ScreenHub _hub;
 
+    /// <summary>
+    /// Creates a stack.
+    /// </summary>
+    /// <param name="hub">Hub where it will work.</param>
     public ScreenStack(ScreenHub hub)
     {
         _hub = hub;
@@ -15,10 +25,17 @@ public class ScreenStack
 
     public bool Empty => _screens.Count == 0;
 
-    public Object PartialDrawLock => _hub;
+    /// <summary>
+    /// Lock on this object if you want to draw something in a thread outside event handlers.
+    /// </summary>
+    public object PartialDrawLock => _hub;
 
     public App? App => _screens.OfType<App>().FirstOrDefault();
 
+    /// <summary>
+    /// Opens a new screen in this stack, suspending previous.
+    /// </summary>
+    /// <param name="s">Screen to open.</param>
     public void Push(IScreen s)
     {
         if (_screens.Count > 0)
@@ -28,6 +45,9 @@ public class ScreenStack
         _hub.Redraw();
     }
 
+    /// <summary>
+    /// Closes active screen and resumes a previous one.
+    /// </summary>
     public void Back()
     {
         _screens.Pop().OnLeave();

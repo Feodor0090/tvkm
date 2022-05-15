@@ -2,6 +2,9 @@ namespace tvkm.UIEngine.Templates;
 
 using static Console;
 
+/// <summary>
+/// List screen that supports executing a long operation to prepare all content.
+/// </summary>
 public abstract class LongLoadingListScreen : ListScreen
 {
     protected LongLoadingListScreen(string title) : base(title)
@@ -11,6 +14,10 @@ public abstract class LongLoadingListScreen : ListScreen
     private bool _ready;
     private CancellationTokenSource? _loadingToken;
 
+    /// <summary>
+    /// Loads screen's content.
+    /// </summary>
+    /// <param name="stack">Screen stack in which this screen was opened.</param>
     protected abstract void Load(ScreenStack stack);
 
     public override void OnEnter(ScreenStack stack)
@@ -49,7 +56,6 @@ public abstract class LongLoadingListScreen : ListScreen
         }, _loadingToken.Token);
     }
 
-    /// <inheritdoc />
     public override void OnLeave()
     {
         base.OnLeave();

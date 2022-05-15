@@ -1,22 +1,28 @@
-﻿using System.Diagnostics;
-using tvkm.UIEngine;
+﻿using tvkm.UIEngine;
 
 namespace tvkm;
 
 public static class Program
 {
-    private static readonly ScreenHub hub = new ScreenHub(new DefaultControlsScheme());
+    /// <summary>
+    /// Singletone hub instance.
+    /// </summary>
+    private static readonly ScreenHub Hub = new(new DefaultControlsScheme());
 
     static void Main(string[] args)
     {
         ConfigManager.ReadSettings();
         InitializeTab(0);   
-        hub.Loop();
+        Hub.Loop();
     }
 
+    /// <summary>
+    /// Resets a tab and opens startup screen there.
+    /// </summary>
+    /// <param name="tab">Tab index.</param>
     static void InitializeTab(int tab)
     {
-        ScreenStack stack = hub[tab];
+        ScreenStack stack = Hub[tab];
         stack.ClearThenPush(new StartupScreen(stack, new App(stack)));
     }
 }

@@ -9,6 +9,7 @@ public readonly struct InputEvent
         Key = key;
         Char = ch;
     }
+
     public readonly InputAction Action;
     public readonly ConsoleModifiers Mods;
     public readonly ConsoleKey Key;
