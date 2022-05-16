@@ -10,7 +10,7 @@ namespace tvkm.Dialogs;
 public class DialogsScreen : DialogsScreenBase, IScreen<App>
 {
     private int _selectedPeerItem;
-    private int _selectedChatItem;
+    private int _selectedChatItem = -1;
 
     public DialogsSection Focus = PeersList;
 
@@ -105,8 +105,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         DrawBorder(0, 0, DialTabW, BufferHeight - 3, "Список диалогов",
             Focus == PeersList ? SelectionColor : DefaultColor);
 
-        var scrollProgress = (float) _selectedPeerItem / Peers.Count;
-        var scrollCursorY = (int) (scrollProgress * h + 1);
+        var scrollProgress = (float) _selectedPeerItem / (Peers.Count - 1);
+        var scrollCursorY = (int) (scrollProgress * (h - 1) + 1);
         SetCursorPosition(DialTabW - 1, scrollCursorY);
         Write((char) 0x2588);
     }
@@ -116,12 +116,12 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         DrawTextboxBorder();
         DrawHistoryBorder();
         DrawPeersList();
-        RedrawAllMessages();
+        DrawAllMessages();
         PrintInput();
         FixCursorLocation();
     }
 
-    private void RedrawAllMessages()
+    private void DrawAllMessages()
     {
         if (Msgs == null) return;
 
@@ -248,7 +248,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
     private int GetMaxSenderNameWidth()
     {
         var maxNameL = 0;
-        for (var i = 0; i < Msgs.Count; i++)
+        for (var i = 0; i < (Msgs?.Count ?? 0); i++)
             maxNameL = Math.Max(maxNameL, Msgs[i].Author.Name.Length);
         return maxNameL;
     }
@@ -278,7 +278,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
     public void HandleKey(InputEvent e, ScreenStack<App> stack)
     {
-        var l = stack.PartialDrawLock;
+        #region subroutines
 
         void RedrawInput()
         {
@@ -295,6 +295,42 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             _message.Clear();
             _messageFieldCursorX = 0;
         }
+
+        void MoveFocusFieldHistory()
+        {
+            lock (_drawLock)
+            {
+                Focus = MessagesHistory;
+                _selectedChatItem = Msgs?.Count - 1 ?? 0;
+                DrawAllMessages();
+                DrawHistoryBorder();
+                DrawTextboxBorder();
+                FixCursorLocation();
+            }
+        }
+
+        void MoveFocusHistoryField()
+        {
+            lock (_drawLock)
+            {
+                Focus = InputField;
+                _selectedChatItem = -1;
+                RedrawInput();
+                DrawHistoryBorder();
+                DrawTextboxBorder();
+                DrawAllMessages();
+                FixCursorLocation();
+                _stack.CancelRedraw();
+            }
+        }
+
+        void MoveFocusFieldPeers()
+        {
+            Focus = PeersList;
+            OpenDialog(null);
+        }
+
+        #endregion
 
         switch (Focus)
         {
@@ -317,10 +353,9 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                     case InputAction.Activate:
                         Peers[_selectedPeerItem].HandleKey(e);
                         Focus = InputField;
-                        _selectedChatItem = Msgs?.Count ?? -1;
                         lock (_drawLock)
                         {
-                            RedrawAllMessages();
+                            DrawAllMessages();
                             DrawTextboxBorder();
                             DrawHistoryBorder();
                         }
@@ -341,24 +376,17 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                 switch (e.Action)
                 {
                     case InputAction.Return:
-                        Focus = InputField;
-                        _selectedChatItem = -1;
-                        RedrawInput();
-                        break;
+                        MoveFocusHistoryField();
+                        return;
                     case InputAction.MoveUp:
                         _selectedChatItem--;
                         break;
                     case InputAction.MoveDown:
                         _selectedChatItem++;
-                        if (_selectedChatItem < Msgs.Count)
-                            break;
-
-                        Focus = InputField;
-                        RedrawInput();
-                        lock (_drawLock)
+                        if (_selectedChatItem >= Msgs.Count)
                         {
-                            DrawTextboxBorder();
-                            DrawHistoryBorder();
+                            MoveFocusHistoryField();
+                            return;
                         }
 
                         break;
@@ -370,7 +398,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
                 lock (_drawLock)
                 {
-                    RedrawAllMessages();
+                    DrawAllMessages();
                     FixCursorLocation();
                     _stack.CancelRedraw();
                 }
@@ -384,9 +412,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                         case InputAction.Return:
                             if (_message.Count == 0)
                             {
-                                Focus = PeersList;
-                                OpenDialog(null);
-                                break;
+                                MoveFocusFieldPeers();
+                                return;
                             }
 
                             ClearInput();
@@ -396,19 +423,14 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                                 ClearInput();
                             break;
                         case InputAction.SpecialKey:
-                            if (e.Key == ConsoleKey.Backspace)
+                            if (_message.Count <= 0) break;
+                            if (e.Key == ConsoleKey.Backspace && _messageFieldCursorX > 0)
                             {
-                                if (_message.Count > 0 && _messageFieldCursorX > 0)
-                                {
-                                    _message.RemoveAt(_messageFieldCursorX - 1);
-                                    _messageFieldCursorX--;
-                                }
+                                _message.RemoveAt(_messageFieldCursorX - 1);
+                                _messageFieldCursorX--;
                             }
-                            else if (e.Key == ConsoleKey.Delete)
-                            {
-                                if (_message.Count > 0 && _messageFieldCursorX < _message.Count)
-                                    _message.RemoveAt(_messageFieldCursorX);
-                            }
+                            else if (e.Key == ConsoleKey.Delete && _messageFieldCursorX < _message.Count)
+                                _message.RemoveAt(_messageFieldCursorX);
 
                             break;
                         case InputAction.TextType:
@@ -424,9 +446,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                                 _messageFieldCursorX++;
                             break;
                         case InputAction.MoveUp:
-                            Focus = MessagesHistory;
-                            _selectedChatItem = Msgs.Count - 1;
-                            RedrawAllMessages();
+                            MoveFocusFieldHistory();
                             break;
                     }
 
@@ -463,7 +483,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             Msgs.Add(new MsgItem(GetUser(id), m, _api));
             lock (_drawLock)
             {
-                RedrawAllMessages();
+                DrawAllMessages();
                 FixCursorLocation();
             }
 
@@ -501,7 +521,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
         lock (_drawLock)
         {
-            RedrawAllMessages();
+            DrawAllMessages();
             FixCursorLocation();
         }
     }
