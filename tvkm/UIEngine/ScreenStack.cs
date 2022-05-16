@@ -31,7 +31,7 @@ public sealed class ScreenStack<T> where T : IScreen<T>
     /// </summary>
     public object PartialDrawLock => _hub;
 
-    public T? App => _screens.OfType<T>().FirstOrDefault();
+    public T MainScreen => _screens.OfType<T>().Single();
 
     /// <summary>
     /// Opens a new screen in this stack, suspending previous.

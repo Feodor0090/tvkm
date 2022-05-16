@@ -133,7 +133,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         {
             var msg = Msgs[i];
             ForegroundColor = _selectedChatItem == i ? SelectionColor :
-                msg.Author.Id == _stack.App.UserId ? SpecialColor : DefaultColor;
+                msg.Author.Id == _stack.MainScreen.UserId ? SpecialColor : DefaultColor;
             SetCursorPosition(DialTabW + 1, ++cursorY);
             Write((msg.Author.Name + msg.Time.ToString(DateFormat)).PadLeft(maxNameL));
             if (msg.TextValid)
@@ -537,7 +537,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
     {
         OpenDialog(null);
         FetchPeersList();
-        var lpd = _stack.App.Longpoll;
+        var lpd = _stack.MainScreen.Longpoll;
         lpd.OnNewMessage += OnNewMessage;
         lpd.OnMessageEdit += OnMessageEdit;
         lpd.OnMessageWrite += OnMessageWrite;
@@ -553,7 +553,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
     public void OnLeave()
     {
-        var lpd = _stack.App.Longpoll;
+        var lpd = _stack.MainScreen.Longpoll;
         lpd.OnNewMessage -= OnNewMessage;
         lpd.OnMessageEdit -= OnMessageEdit;
         lpd.OnMessageWrite -= OnMessageWrite;
