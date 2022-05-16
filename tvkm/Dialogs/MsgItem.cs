@@ -55,7 +55,7 @@ public sealed class MsgItem
         s.Add(new Button<App>($"Отправитель: {Author.Name}", () =>
         {
             if (_api != null)
-                stack.Push(new UserView(Author, _api));
+                stack.Push(new UserView(Author));
         }));
 
         if (Atts != null)

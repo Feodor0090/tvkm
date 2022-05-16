@@ -1,7 +1,6 @@
 using tvkm.Api;
 using tvkm.UIEngine;
 using tvkm.UIEngine.Templates;
-using VkNet;
 using VkNet.Enums.Filters;
 using VkNet.Model.RequestParams;
 using static System.Console;
@@ -10,35 +9,31 @@ namespace tvkm;
 
 public sealed class FriendsList : LongLoadingListScreen<App>
 {
-    public FriendsList(VkApi api) : base("Друзья")
+    public FriendsList() : base("Друзья")
     {
-        _api = api;
     }
-
-    private readonly VkApi _api;
 
     /// <inheritdoc />
     protected override void Load(ScreenStack<App> stack)
     {
-        var list = _api.Friends.Get(new FriendsGetParams
+        var api = stack.MainScreen.Api;
+        var list = api.Friends.Get(new FriendsGetParams
         {
             Count = 100,
-            UserId = _api.UserId ?? 0,
+            UserId = api.UserId ?? 0,
             Fields = ProfileFields.All,
         });
-        AddRange(list.Select(x => new FriendItem(new VkUser(x), _api)));
+        AddRange(list.Select(x => new FriendItem(new VkUser(x))));
     }
 
     private sealed class FriendItem : IItem<App>
     {
-        public FriendItem(VkUser user, VkApi api)
+        public FriendItem(VkUser user)
         {
             _user = user;
-            _api = api;
         }
 
         private readonly VkUser _user;
-        private readonly VkApi _api;
 
         public void Draw(bool selected)
         {
@@ -51,7 +46,7 @@ public sealed class FriendsList : LongLoadingListScreen<App>
         {
             if (e.Action == InputAction.Activate)
             {
-                stack.Push(new UserView(_user, _api));
+                stack.Push(new UserView(_user));
             }
         }
 

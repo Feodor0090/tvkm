@@ -3,7 +3,6 @@ using tvkm.Dialogs;
 using tvkm.UIEngine;
 using tvkm.UIEngine.Controls;
 using tvkm.UIEngine.Templates;
-using VkNet;
 using VkNet.Model;
 
 namespace tvkm;
@@ -11,18 +10,17 @@ namespace tvkm;
 public class UserView : LongLoadingListScreen<App>
 {
     private readonly VkUser _user;
-    private readonly VkApi _api;
     private User? fullUser;
 
-    public UserView(VkUser user, VkApi api) : base($"{user.Name} (id{user.Id})")
+    public UserView(VkUser user) : base($"{user.Name} (id{user.Id})")
     {
         _user = user;
-        _api = api;
     }
 
     protected override void Load(ScreenStack<App> stack)
     {
-        fullUser = _user.LoadFull(_api.Users);
+        var api = stack.MainScreen.Api;
+        fullUser = _user.LoadFull(api.Users);
         Add(new Button<App>("Посмотреть аватар", () =>
         {
             try
@@ -44,7 +42,7 @@ public class UserView : LongLoadingListScreen<App>
         Add(new Button<App>("Открыть переписку", () =>
         {
             DialogsScreen d;
-            stack.Push(d = new DialogsScreen(_api, stack));
+            stack.Push(d = new DialogsScreen(stack));
             d.OpenDialog(_user.Id, _user.Name);
             d.Focus = DialogsSection.InputField;
         }));

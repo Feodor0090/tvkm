@@ -28,14 +28,14 @@ public class App : ListScreen<App>
             {
                 try
                 {
-                    stack.Push(new DialogsScreen(Api, stack));
+                    stack.Push(new DialogsScreen(stack));
                 }
                 catch (HttpRequestException)
                 {
                     stack.Push(new AlertPopup<App>("Сбой подключения. Проверьте сеть.", stack));
                 }
             }),
-            new Button<App>("Друзья", () => { stack.Push(new FriendsList(Api)); }),
+            new Button<App>("Друзья", () => { stack.Push(new FriendsList()); }),
             new Button<App>("Закрыть сессию",
                 () =>
                 {

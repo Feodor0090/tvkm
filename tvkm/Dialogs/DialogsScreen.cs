@@ -1,6 +1,4 @@
-using tvkm.Api;
 using tvkm.UIEngine;
-using VkNet;
 using VkNet.Model;
 using static System.Console;
 using static tvkm.Api.LongpollDaemon;
@@ -24,7 +22,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
     public const int DialTabW = 50;
     private const string DateFormat = " [hh:mm]: ";
 
-    public DialogsScreen(VkApi api, ScreenStack<App> stack) : base(api)
+    public DialogsScreen(ScreenStack<App> stack) : base(stack.MainScreen.Api)
     {
         _stack = stack;
     }
