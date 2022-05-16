@@ -2,3 +2,6 @@
 .idea/
 tvkm/bin/
 tvkm/obj
+
+tvkm/config.txt
+tvkm/session.txt
