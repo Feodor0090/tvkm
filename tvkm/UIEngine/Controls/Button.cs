@@ -23,7 +23,7 @@ public class Button<T> : IButton, IItem<T> where T : IScreen<T>
 
     public void Draw(bool selected)
     {
-        Console.ForegroundColor = selected ? ConsoleColor.Yellow : ConsoleColor.White;
+        Console.ForegroundColor = selected ? Settings.SelectionColor : Settings.DefaultColor;
         Console.WriteLine(top);
         Console.WriteLine(main);
         Console.WriteLine(bottom);
