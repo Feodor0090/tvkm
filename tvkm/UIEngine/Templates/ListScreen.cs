@@ -18,6 +18,17 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
         Title = title;
     }
 
+    /// <summary>
+    /// Creates a new screen with content.
+    /// </summary>
+    /// <param name="title">Text to display in header.</param>
+    /// <param name="items">Content of the screen.</param>
+    public ListScreen(string title, IEnumerable<IItem<T>> items)
+    {
+        Title = title;
+        AddRange(items);
+    }
+
     private int _selectedItem;
 
     /// <summary>
