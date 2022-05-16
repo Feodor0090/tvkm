@@ -4,22 +4,22 @@ using tvkm.UIEngine.Templates;
 
 namespace tvkm;
 
-internal sealed class LoginScreen : ListScreen
+internal sealed class LoginScreen : ListScreen<App>
 {
-    public LoginScreen(ScreenStack stack, App app) : base("Вход в аккаунт VK")
+    public LoginScreen(ScreenStack<App> stack, App app) : base("Вход в аккаунт VK")
     {
-        var login = new TextField("Логин");
-        var password = new TextField("Пароль") { ShowChars = false };
+        var login = new TextField<App>("Логин");
+        var password = new TextField<App>("Пароль") {ShowChars = false};
         Add(login);
         Add(password);
-        Add(new Button("Далее", () =>
+        Add(new Button<App>("Далее", () =>
         {
             try
             {
                 var error = app.AuthByPassword(login.Text, password.Text);
                 if (error != null)
                 {
-                    stack.Push(new AlertPopup(error, stack));
+                    stack.Push(new AlertPopup<App>(error, stack));
                     return;
                 }
 
@@ -31,7 +31,7 @@ internal sealed class LoginScreen : ListScreen
             }
             catch
             {
-                stack.Push(new AlertPopup("Не удалось войти.", stack));
+                stack.Push(new AlertPopup<App>("Не удалось войти.", stack));
             }
         }));
     }

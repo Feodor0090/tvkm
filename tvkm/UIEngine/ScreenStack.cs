@@ -5,23 +5,24 @@ namespace tvkm.UIEngine;
 /// <summary>
 /// TVKM screen stack is an object that handles a list of screens that user can navigate through.
 /// </summary>
-public class ScreenStack
+/// <typeparam name="T">"Main" screen of your application.</typeparam>
+public sealed class ScreenStack<T> where T : IScreen<T>
 {
     /// <summary>
     /// Hub instance.
     /// </summary>
-    private readonly ScreenHub _hub;
+    private readonly ScreenHub<T> _hub;
 
     /// <summary>
     /// Creates a stack.
     /// </summary>
     /// <param name="hub">Hub where it will work.</param>
-    public ScreenStack(ScreenHub hub)
+    public ScreenStack(ScreenHub<T> hub)
     {
         _hub = hub;
     }
 
-    private readonly Stack<IScreen> _screens = new();
+    private readonly Stack<IScreen<T>> _screens = new();
 
     public bool Empty => _screens.Count == 0;
 
@@ -30,13 +31,13 @@ public class ScreenStack
     /// </summary>
     public object PartialDrawLock => _hub;
 
-    public App? App => _screens.OfType<App>().FirstOrDefault();
+    public T? App => _screens.OfType<T>().FirstOrDefault();
 
     /// <summary>
     /// Opens a new screen in this stack, suspending previous.
     /// </summary>
     /// <param name="s">Screen to open.</param>
-    public void Push(IScreen s)
+    public void Push(IScreen<T> s)
     {
         if (_screens.Count > 0)
             _screens.Peek().OnPause();
@@ -55,13 +56,13 @@ public class ScreenStack
             s.OnResume();
     }
 
-    public void BackThenPush(IScreen s)
+    public void BackThenPush(IScreen<T> s)
     {
         Back();
         Push(s);
     }
 
-    public IScreen? Peek()
+    public IScreen<T>? Peek()
     {
         if (_screens.Count == 0) return null;
         return _screens.Peek();
@@ -77,7 +78,7 @@ public class ScreenStack
         _hub.Redraw();
     }
 
-    public void ClearThenPush(IScreen s)
+    public void ClearThenPush(IScreen<T> s)
     {
         while (_screens.Count > 0)
             Back();
@@ -90,6 +91,6 @@ public class ScreenStack
     /// <param name="text">Text to show to user.</param>
     public void Alert(string text)
     {
-        Push(new AlertPopup(text, this));
+        Push(new AlertPopup<T>(text, this));
     }
 }

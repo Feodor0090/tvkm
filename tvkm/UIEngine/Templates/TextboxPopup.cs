@@ -5,31 +5,32 @@ namespace tvkm.UIEngine.Templates;
 /// <summary>
 /// List screen with a text field and "submit" button.
 /// </summary>
-public sealed class TextboxPopup : ListScreen
+/// <typeparam name="T">"Main" screen of your application.</typeparam>
+public sealed class TextboxPopup<T> : ListScreen<T> where T : IScreen<T>
 {
-    private readonly TextField field;
+    private readonly TextField<T> _field;
     private readonly Action<string> _onSubmit;
     private readonly Action? _onCancel;
 
     public TextboxPopup(string title, Action<string> onSubmit, Action onCancel, string fieldTitle,
         string fieldContent = "", string buttonText = "Продолжить") : base(title)
     {
-        Add(field = new TextField(fieldTitle, fieldContent));
-        Add(new Button(buttonText, Submit));
+        Add(_field = new TextField<T>(fieldTitle, fieldContent));
+        Add(new Button<T>(buttonText, Submit));
         _onSubmit = onSubmit;
         _onCancel = onCancel;
     }
 
     public TextboxPopup(string title, string fieldTitle, Action<string> onSubmit) : base(title)
     {
-        Add(field = new TextField(fieldTitle));
-        Add(new Button("Продолжить", Submit));
+        Add(_field = new TextField<T>(fieldTitle));
+        Add(new Button<T>("Продолжить", Submit));
         _onSubmit = onSubmit;
     }
 
     private void Submit()
     {
-        _onSubmit(field.Text);
+        _onSubmit(_field.Text);
     }
 
     public override void OnLeave()

@@ -34,7 +34,7 @@ public struct Attachment
         return "live";
     }
 
-    public void View(ScreenStack stack)
+    public void View(ScreenStack<App> stack)
     {
         switch (Action)
         {

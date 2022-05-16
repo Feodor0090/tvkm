@@ -3,7 +3,8 @@ namespace tvkm.UIEngine;
 /// <summary>
 /// TVKM screen is an object that can draw itself onto console and handle keyboard input.
 /// </summary>
-public interface IScreen
+/// <typeparam name="T">"Main" screen of your application.</typeparam>
+public interface IScreen<T> where T : IScreen<T>
 {
     /// <summary>
     /// Fully draws this screen onto console.
@@ -15,13 +16,13 @@ public interface IScreen
     /// </summary>
     /// <param name="e">Input event.</param>
     /// <param name="stack">Stack, where this screen is placed now.</param>
-    public void HandleKey(InputEvent e, ScreenStack stack);
+    public void HandleKey(InputEvent e, ScreenStack<T> stack);
 
     /// <summary>
     /// Fires when this screen is pushed.
     /// </summary>
     /// <param name="stack"></param>
-    public void OnEnter(ScreenStack stack);
+    public void OnEnter(ScreenStack<T> stack);
 
     /// <summary>
     /// Fires when a screen above this is pushed.
@@ -41,5 +42,5 @@ public interface IScreen
     /// <summary>
     /// Currently selected item, null if there are no one.
     /// </summary>
-    public IItem? Current { get; }
+    public IItem<T>? Current { get; }
 }

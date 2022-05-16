@@ -2,7 +2,7 @@ using tvkm.UIEngine;
 
 namespace tvkm.Dialogs;
 
-public sealed class DialogItem : IItem
+public sealed class DialogItem : IItem<App>
 {
     public readonly long PeerId;
     public readonly string PeerName;
@@ -28,7 +28,7 @@ public sealed class DialogItem : IItem
         Console.Write(stp.PadRightOrTrim(DialogsScreen.DialTabW - 2));
     }
 
-    public void HandleKey(InputEvent e, ScreenStack stack = null!)
+    public void HandleKey(InputEvent e, ScreenStack<App> stack = null!)
     {
         if (e.Action != InputAction.Activate) return;
         UnreadCount = 0;

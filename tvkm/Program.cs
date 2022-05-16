@@ -7,12 +7,12 @@ public static class Program
     /// <summary>
     /// Singletone hub instance.
     /// </summary>
-    private static readonly ScreenHub Hub = new(new DefaultControlsScheme());
+    private static readonly ScreenHub<App> Hub = new(new DefaultControlsScheme());
 
     static void Main(string[] args)
     {
         ConfigManager.ReadSettings();
-        InitializeTab(0);   
+        InitializeTab(0);
         Hub.Loop();
     }
 
@@ -22,7 +22,7 @@ public static class Program
     /// <param name="tab">Tab index.</param>
     static void InitializeTab(int tab)
     {
-        ScreenStack stack = Hub[tab];
+        ScreenStack<App> stack = Hub[tab];
         stack.ClearThenPush(new StartupScreen(stack, new App(stack)));
     }
 }

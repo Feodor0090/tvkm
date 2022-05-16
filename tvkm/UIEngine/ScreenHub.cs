@@ -3,23 +3,24 @@ namespace tvkm.UIEngine;
 /// <summary>
 /// TVKM screen hub is a singleton object that manages screens drawing and event loop.
 /// </summary>
-public sealed class ScreenHub
+/// /// <typeparam name="T">"Main" screen of your application.</typeparam>
+public sealed class ScreenHub<T> where T : IScreen<T>
 {
-    public ScreenHub(IControlsSchemeProvider scheme)
+    public ScreenHub(IControlsSchemeProvider<T> scheme)
     {
         _render = Thread.CurrentThread;
         _input = new Thread(HandleInput);
         Scheme = scheme;
-        _screens = new ScreenStack(this);
+        _screens = new ScreenStack<T>(this);
     }
 
     /// <summary>
     /// Currently used input mapper.
     /// </summary>
-    public IControlsSchemeProvider Scheme { get; set; }
+    public IControlsSchemeProvider<T> Scheme { get; set; }
 
     //TODO: there should be an array of tabs (each tab is a stack), not a single stack.
-    private readonly ScreenStack _screens;
+    private readonly ScreenStack<T> _screens;
     private readonly Thread _render;
     private readonly Thread _input;
     private bool _redraw = true;
@@ -122,7 +123,7 @@ public sealed class ScreenHub
     /// Gets a tab's stack.
     /// </summary>
     /// <param name="index">Tab index.</param>
-    public ScreenStack this[int index]
+    public ScreenStack<T> this[int index]
     {
         //TODO implement tabs
         get => _screens;

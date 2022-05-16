@@ -9,7 +9,7 @@ using static tvkm.Settings;
 
 namespace tvkm.Dialogs;
 
-public class DialogsScreen : DialogsScreenBase, IScreen
+public class DialogsScreen : DialogsScreenBase, IScreen<App>
 {
     private int _selectedPeerItem;
     private int _selectedChatItem;
@@ -19,12 +19,12 @@ public class DialogsScreen : DialogsScreenBase, IScreen
     private readonly List<char> _message = new();
     private int _messageFieldCursorX;
 
-    private readonly ScreenStack _stack;
+    private readonly ScreenStack<App> _stack;
 
     public const int DialTabW = 50;
     private const string DateFormat = " [hh:mm]: ";
 
-    public DialogsScreen(VkApi api, ScreenStack stack) : base(api)
+    public DialogsScreen(VkApi api, ScreenStack<App> stack) : base(api)
     {
         _stack = stack;
     }
@@ -271,7 +271,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
         }
     }
 
-    public void HandleKey(InputEvent e, ScreenStack stack)
+    public void HandleKey(InputEvent e, ScreenStack<App> stack)
     {
         var l = stack.PartialDrawLock;
 
@@ -344,14 +344,17 @@ public class DialogsScreen : DialogsScreenBase, IScreen
                             Focus = InputField;
                             RedrawInput();
                         }
+
                         break;
                     case InputAction.Activate:
                         if (_selectedChatItem >= 0 && _selectedChatItem < Msgs.Count)
                         {
                             Msgs[_selectedChatItem].Open(_stack);
                         }
+
                         return;
                 }
+
                 RedrawAllMessages();
                 FixCursorLocation();
                 _stack.CancelRedraw();
@@ -530,7 +533,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     #region Screen stack event handlers
 
-    public void OnEnter(ScreenStack stack)
+    public void OnEnter(ScreenStack<App> stack)
     {
         OpenDialog(null);
         FetchPeersList();
@@ -558,5 +561,6 @@ public class DialogsScreen : DialogsScreenBase, IScreen
 
     #endregion
 
-    public IItem? Current => null;
+    //TODO return actual items
+    public IItem<App>? Current => null;
 }

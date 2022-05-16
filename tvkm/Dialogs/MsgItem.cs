@@ -4,7 +4,6 @@ using tvkm.UIEngine.Controls;
 using tvkm.UIEngine.Templates;
 using VkNet;
 using VkNet.Model;
-using Button = tvkm.UIEngine.Controls.Button;
 
 namespace tvkm.Dialogs;
 
@@ -50,21 +49,21 @@ public sealed class MsgItem
             Atts = Attachment.Convert(msg.Attachments);
     }
 
-    public void Open(ScreenStack stack)
+    public void Open(ScreenStack<App> stack)
     {
-        ListScreen s = new ListScreen("Меню сообщения");
-        s.Add(new Button($"Отправитель: {Author.Name}", () =>
+        var s = new ListScreen<App>("Меню сообщения");
+        s.Add(new Button<App>($"Отправитель: {Author.Name}", () =>
         {
             if (_api != null)
                 stack.Push(new UserView(Author, _api));
         }));
-        
-        if(Atts!=null)
+
+        if (Atts != null)
             foreach (var att in Atts)
             {
-                s.Add(new Button(att.Caption, () => att.View(stack)));
+                s.Add(new Button<App>(att.Caption, () => att.View(stack)));
             }
-        
+
         stack.Push(s);
     }
 }

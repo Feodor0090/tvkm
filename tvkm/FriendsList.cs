@@ -8,7 +8,7 @@ using static System.Console;
 
 namespace tvkm;
 
-public sealed class FriendsList : LongLoadingListScreen
+public sealed class FriendsList : LongLoadingListScreen<App>
 {
     public FriendsList(VkApi api) : base("Друзья")
     {
@@ -18,7 +18,7 @@ public sealed class FriendsList : LongLoadingListScreen
     private readonly VkApi _api;
 
     /// <inheritdoc />
-    protected override void Load(ScreenStack stack)
+    protected override void Load(ScreenStack<App> stack)
     {
         var list = _api.Friends.Get(new FriendsGetParams
         {
@@ -29,7 +29,7 @@ public sealed class FriendsList : LongLoadingListScreen
         AddRange(list.Select(x => new FriendItem(new VkUser(x), _api)));
     }
 
-    private sealed class FriendItem : IItem
+    private sealed class FriendItem : IItem<App>
     {
         public FriendItem(VkUser user, VkApi api)
         {
@@ -47,7 +47,7 @@ public sealed class FriendsList : LongLoadingListScreen
             Write(_user.Name);
         }
 
-        public void HandleKey(InputEvent e, ScreenStack stack)
+        public void HandleKey(InputEvent e, ScreenStack<App> stack)
         {
             if (e.Action == InputAction.Activate)
             {

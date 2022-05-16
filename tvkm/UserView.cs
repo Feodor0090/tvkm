@@ -1,14 +1,14 @@
 using tvkm.Api;
 using tvkm.Dialogs;
 using tvkm.UIEngine;
+using tvkm.UIEngine.Controls;
 using tvkm.UIEngine.Templates;
 using VkNet;
 using VkNet.Model;
-using Button = tvkm.UIEngine.Controls.Button;
 
 namespace tvkm;
 
-public class UserView : LongLoadingListScreen
+public class UserView : LongLoadingListScreen<App>
 {
     private readonly VkUser _user;
     private readonly VkApi _api;
@@ -20,10 +20,10 @@ public class UserView : LongLoadingListScreen
         _api = api;
     }
 
-    protected override void Load(ScreenStack stack)
+    protected override void Load(ScreenStack<App> stack)
     {
         fullUser = _user.LoadFull(_api.Users);
-        Add(new Button("Посмотреть аватар", () =>
+        Add(new Button<App>("Посмотреть аватар", () =>
         {
             try
             {
@@ -41,7 +41,7 @@ public class UserView : LongLoadingListScreen
                 stack.Alert("Аватарка отвалилась. Может, профиль закрыт?");
             }
         }));
-        Add(new Button("Открыть переписку", () =>
+        Add(new Button<App>("Открыть переписку", () =>
         {
             DialogsScreen d;
             stack.Push(d = new DialogsScreen(_api, stack));

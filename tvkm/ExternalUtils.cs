@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using tvkm.UIEngine;
-using tvkm.UIEngine.Templates;
 using VkNet.Model.Attachments;
 
 namespace tvkm;
@@ -10,7 +9,7 @@ namespace tvkm;
 /// </summary>
 public static class ExternalUtils
 {
-    public static void TryOpenBrowser(string url, ScreenStack stack)
+    public static void TryOpenBrowser(string url, ScreenStack<App> stack)
     {
         try
         {
@@ -20,13 +19,12 @@ public static class ExternalUtils
         {
             if (Settings.BrowserPath.Contains("w3m"))
             {
-                stack.Push(new AlertPopup(
-                    "Не удалось запустить W3M - он задан как браузер для открытия URL. Проверьте его установку или отредактируйте конфигурацию для использования другого браузера.",
-                    stack));
+                stack.Alert(
+                    "Не удалось запустить W3M - он задан как браузер для открытия URL. Проверьте его установку или отредактируйте конфигурацию для использования другого браузера.");
             }
             else
             {
-                stack.Push(new AlertPopup("Не удалось запустить ваш браузер. Проверьте файл конфигурации.", stack));
+                stack.Alert("Не удалось запустить ваш браузер. Проверьте файл конфигурации.");
             }
         }
     }
@@ -40,26 +38,26 @@ public static class ExternalUtils
         return path;
     }
 
-    public static void TryPlayMediaAsIs(string url, ScreenStack stack)
+    public static void TryPlayMediaAsIs(string url, ScreenStack<App> stack)
     {
         try
         {
-            Console.SetCursorPosition(0,0);
+            Console.SetCursorPosition(0, 0);
             Process.Start(Settings.PlayerPath, url);
         }
         catch
         {
-            stack.Push(new AlertPopup("Не удалось запустить ваш плеер.",
-                stack));
+            stack.Alert("Не удалось запустить ваш плеер.");
         }
     }
-    public static void TryViewPhoto(Photo photo, ScreenStack stack)
+
+    public static void TryViewPhoto(Photo photo, ScreenStack<App> stack)
     {
         var size = photo.Sizes.OrderBy(x => x.Width).FirstOrDefault();
         TryViewPhoto(size.Url.AbsoluteUri, stack);
     }
 
-    public static void TryViewPhoto(string photo, ScreenStack stack)
+    public static void TryViewPhoto(string photo, ScreenStack<App> stack)
     {
         var path = CacheFile(photo);
         try
@@ -68,8 +66,7 @@ public static class ExternalUtils
         }
         catch
         {
-            stack.Push(new AlertPopup("Не удалось запустить ваш просмотрщик изображений. Проверьте файл конфигурации.",
-                stack));
+            stack.Alert("Не удалось запустить ваш просмотрщик изображений. Проверьте файл конфигурации.");
         }
     }
 }

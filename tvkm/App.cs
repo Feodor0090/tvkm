@@ -3,28 +3,28 @@ using Newtonsoft.Json;
 using tvkm.Api;
 using tvkm.Dialogs;
 using tvkm.UIEngine;
+using tvkm.UIEngine.Controls;
 using tvkm.UIEngine.Templates;
 using VkNet;
 using VkNet.Model;
-using Button = tvkm.UIEngine.Controls.Button;
 
 namespace tvkm;
 
-public class App : ListScreen
+public class App : ListScreen<App>
 {
     private readonly VkApi _api = new();
-    private ScreenStack _stack;
+    private ScreenStack<App> _stack;
 
     public LongpollDaemon? Longpoll;
     public int UserId { get; private set; }
 
-    public App(ScreenStack stack) : base("TVKM")
+    public App(ScreenStack<App> stack) : base("TVKM")
     {
         this._stack = stack;
         AddRange(new[]
         {
-            new Button("Лента", () => { stack.Push(new AlertPopup("Махо пидор", stack)); }),
-            new Button("Сообщения", () =>
+            new Button<App>("Лента", () => { stack.Alert("Махо пидор"); }),
+            new Button<App>("Сообщения", () =>
             {
                 try
                 {
@@ -32,19 +32,22 @@ public class App : ListScreen
                 }
                 catch (HttpRequestException)
                 {
-                    stack.Push(new AlertPopup("Сбой подключения. Проверьте сеть.", stack));
+                    stack.Push(new AlertPopup<App>("Сбой подключения. Проверьте сеть.", stack));
                 }
             }),
-            new Button("Друзья", () => { stack.Push(new FriendsList(_api)); }),
-            new Button("Закрыть сессию",
-                () => { stack.Push(new AlertPopup("Сделаем позже. Удалите session.txt из рабочей папки.", stack)); }),
-            new Button("Выход", stack.Back),
+            new Button<App>("Друзья", () => { stack.Push(new FriendsList(_api)); }),
+            new Button<App>("Закрыть сессию",
+                () =>
+                {
+                    stack.Push(new AlertPopup<App>("Сделаем позже. Удалите session.txt из рабочей папки.", stack));
+                }),
+            new Button<App>("Выход", stack.Back),
         });
     }
 
     #region Screen control
 
-    public override void OnEnter(ScreenStack stack)
+    public override void OnEnter(ScreenStack<App> stack)
     {
         ConfigManager.ReadSettings();
         UserId = (int) (_api.UserId ?? 0);
@@ -93,16 +96,17 @@ public class App : ListScreen
         {
             if (dict["error"] == "need_validation" && dict["error_description"].Contains("use code param"))
             {
-                _stack.Push(new TextboxPopup("2FA авторизация", "Код из SMS", s1 =>
+                _stack.Push(new TextboxPopup<App>("2FA авторизация", "Код из SMS", s1 =>
                 {
                     try
                     {
                         var error = AuthByPassword(login, password, s1);
                         if (error != null)
                         {
-                            _stack.Push(new AlertPopup(error, _stack));
+                            _stack.Alert(error);
                             return;
                         }
+
                         _stack.Back();
                         _stack.BackThenPush(this);
                     }
@@ -112,7 +116,7 @@ public class App : ListScreen
                     }
                     catch
                     {
-                        _stack.Push(new AlertPopup("Не удалось войти.", _stack));
+                        _stack.Alert("Не удалось войти.");
                     }
                 }));
                 throw new OperationCanceledException();

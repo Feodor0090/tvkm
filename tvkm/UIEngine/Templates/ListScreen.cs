@@ -6,7 +6,8 @@ namespace tvkm.UIEngine.Templates;
 /// <summary>
 /// Common screen type. Has a border, header and list of items to draw. Can be navigated.
 /// </summary>
-public class ListScreen : List<IItem>, IScreen
+/// <typeparam name="T">"Main" screen of your application.</typeparam>
+public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
 {
     /// <summary>
     /// Creates a new empty screen. Use <see cref="List{T}.Add"/> to push content in it.
@@ -105,7 +106,7 @@ public class ListScreen : List<IItem>, IScreen
         }
     }
 
-    public virtual void HandleKey(InputEvent e, ScreenStack stack)
+    public virtual void HandleKey(InputEvent e, ScreenStack<T> stack)
     {
         switch (e.Action)
         {
@@ -136,10 +137,11 @@ public class ListScreen : List<IItem>, IScreen
     /// Total number of lines that all items consume.
     /// </summary>
     public int TotalItemsH => this.Sum(x => x.Height);
+
     protected static int ContentH => BufferHeight - 3;
     public int SelectedItemGlobalY => this.Take(_selectedItem).Sum(x => x.Height);
 
-    public virtual void OnEnter(ScreenStack stack)
+    public virtual void OnEnter(ScreenStack<T> stack)
     {
     }
 
@@ -155,5 +157,5 @@ public class ListScreen : List<IItem>, IScreen
     {
     }
 
-    public IItem? Current => Count == 0 ? null : this[_selectedItem];
+    public IItem<T>? Current => Count == 0 ? null : this[_selectedItem];
 }

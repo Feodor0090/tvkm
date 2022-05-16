@@ -2,9 +2,9 @@ using tvkm.UIEngine;
 
 namespace tvkm;
 
-public class DefaultControlsScheme : IControlsSchemeProvider
+public class DefaultControlsScheme : IControlsSchemeProvider<App>
 {
-    public InputAction ToAction(ConsoleKeyInfo key, IItem? currentItem)
+    public InputAction ToAction(ConsoleKeyInfo key, IItem<App>? currentItem)
     {
         switch (key.Key)
         {
