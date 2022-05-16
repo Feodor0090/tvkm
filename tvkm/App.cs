@@ -39,9 +39,18 @@ public class App : ListScreen<App>
             new Button<App>("Закрыть сессию",
                 () =>
                 {
-                    stack.Push(new AlertPopup<App>("Сделаем позже. Удалите session.txt из рабочей папки.", stack));
+                    stack.Push(new ListScreen<App>("Действие удалит session.txt в рабочем каталоге!", new[]
+                    {
+                        new Button<App>("Да, удалить", () =>
+                        {
+                            ConfigManager.DeleteSavedToken();
+                            stack.Back();
+                            stack.Back();
+                            Api.LogOut();
+                        })
+                    }));
                 }),
-            new Button<App>("Выход", stack.Back),
+            new Button<App>("Назад", stack.Back),
         });
     }
 

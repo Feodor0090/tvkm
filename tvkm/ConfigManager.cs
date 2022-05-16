@@ -1,7 +1,13 @@
 namespace tvkm;
 
+/// <summary>
+/// Set of methods to manage config and session files.
+/// </summary>
 public class ConfigManager
 {
+    /// <summary>
+    /// Reads configuration. If there is no file, creates it. If it is correct, automatically applies it.
+    /// </summary>
     public static void ReadSettings()
     {
         try
@@ -47,10 +53,23 @@ public class ConfigManager
         return (long.Parse(s[0]), s[1]);
     }
 
+    /// <summary>
+    /// Saves user's session.
+    /// </summary>
+    /// <param name="userId">User ID.</param>
+    /// <param name="token">Access token.</param>
     public static void WriteToken(long userId, string token)
     {
         using StreamWriter sw = new("session.txt", false);
         sw.Write($"{userId} {token}");
         sw.Flush();
+    }
+
+    /// <summary>
+    /// Deletes file with user's ID and token.
+    /// </summary>
+    public static void DeleteSavedToken()
+    {
+        File.Delete("session.txt");
     }
 }
