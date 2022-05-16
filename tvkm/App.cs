@@ -60,7 +60,8 @@ public class App : ListScreen<App>
     {
         ConfigManager.ReadSettings();
         UserId = (int) (Api.UserId ?? 0);
-        Title = $"TVKM - id{UserId}";
+        string userName = VkUser.GetName(UserId, Api);
+        Title = $"TVKM - id{UserId} ({userName})";
         Longpoll = new LongpollDaemon(this, Api);
         Longpoll.Run();
     }
