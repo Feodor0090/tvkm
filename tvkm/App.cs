@@ -12,7 +12,7 @@ namespace tvkm;
 
 public class App : ListScreen<App>
 {
-    private readonly VkApi _api = new();
+    public readonly VkApi Api = new();
     private ScreenStack<App> _stack;
 
     public LongpollDaemon? Longpoll;
@@ -28,14 +28,14 @@ public class App : ListScreen<App>
             {
                 try
                 {
-                    stack.Push(new DialogsScreen(_api, stack));
+                    stack.Push(new DialogsScreen(Api, stack));
                 }
                 catch (HttpRequestException)
                 {
                     stack.Push(new AlertPopup<App>("Сбой подключения. Проверьте сеть.", stack));
                 }
             }),
-            new Button<App>("Друзья", () => { stack.Push(new FriendsList(_api)); }),
+            new Button<App>("Друзья", () => { stack.Push(new FriendsList(Api)); }),
             new Button<App>("Закрыть сессию",
                 () =>
                 {
@@ -50,9 +50,9 @@ public class App : ListScreen<App>
     public override void OnEnter(ScreenStack<App> stack)
     {
         ConfigManager.ReadSettings();
-        UserId = (int) (_api.UserId ?? 0);
+        UserId = (int) (Api.UserId ?? 0);
         Title = $"TVKM - id{UserId}";
-        Longpoll = new LongpollDaemon(this, _api);
+        Longpoll = new LongpollDaemon(this, Api);
         Longpoll.Run();
     }
 
@@ -69,7 +69,7 @@ public class App : ListScreen<App>
     private const int VkmId = 2685278;
     private const string VkmSecret = "lxhD8OD7dMsqtXIm5IUY";
 
-    private void Auth(long id, string token) => _api.Authorize(new ApiAuthParams {AccessToken = token, UserId = id});
+    private void Auth(long id, string token) => Api.Authorize(new ApiAuthParams {AccessToken = token, UserId = id});
 
     public void RestoreFromFile()
     {
