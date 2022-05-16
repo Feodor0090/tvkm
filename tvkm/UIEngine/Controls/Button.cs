@@ -1,10 +1,10 @@
 namespace tvkm.UIEngine.Controls;
 
-public class Button<T> : IItem<T> where T : IScreen<T>
+public class Button<T> : IButton, IItem<T> where T : IScreen<T>
 {
     public Button(string text, Action onPress)
     {
-        action = onPress;
+        Action = onPress;
         top = "  " + new string(Enumerable.Range(0, text.Length).Select(x => (char) 0x2500).Prepend((char) 0x250C)
             .Append((char) 0x2510)
             .ToArray());
@@ -14,8 +14,10 @@ public class Button<T> : IItem<T> where T : IScreen<T>
             .ToArray());
     }
 
+
+    public Action Action { get; }
+
     //TODO remove this
-    private Action action;
     private string top, main, bottom;
 
 
@@ -29,7 +31,7 @@ public class Button<T> : IItem<T> where T : IScreen<T>
 
     public void HandleKey(InputEvent e, ScreenStack<T> stack)
     {
-        if (e.Action == InputAction.Activate) action();
+        if (e.Action == InputAction.Activate) Action();
     }
 
     public int Height => 3;
