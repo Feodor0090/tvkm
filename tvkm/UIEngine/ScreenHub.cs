@@ -6,7 +6,7 @@ namespace tvkm.UIEngine;
 /// /// <typeparam name="T">"Main" screen of your application.</typeparam>
 public sealed class ScreenHub<T> where T : IScreen<T>
 {
-    public ScreenHub(IControlsSchemeProvider<T> scheme)
+    public ScreenHub(IControlsSchemeProvider scheme)
     {
         _render = Thread.CurrentThread;
         _input = new Thread(HandleInput);
@@ -17,7 +17,7 @@ public sealed class ScreenHub<T> where T : IScreen<T>
     /// <summary>
     /// Currently used input mapper.
     /// </summary>
-    public IControlsSchemeProvider<T> Scheme { get; set; }
+    public IControlsSchemeProvider Scheme { get; set; }
 
     //TODO: there should be an array of tabs (each tab is a stack), not a single stack.
     private readonly ScreenStack<T> _screens;

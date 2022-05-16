@@ -1,6 +1,6 @@
 namespace tvkm.UIEngine;
 
-public interface IControlsSchemeProvider<T> where T : IScreen<T>
+public interface IControlsSchemeProvider
 {
-    InputAction ToAction(ConsoleKeyInfo key, IItem<T>? currentItem);
+    InputAction ToAction(ConsoleKeyInfo key, object? currentItem);
 }
