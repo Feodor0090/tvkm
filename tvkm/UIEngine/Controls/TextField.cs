@@ -54,6 +54,8 @@ public class TextField<T> : ITextField, IItem<T> where T : IScreen<T>
         }
 
         Console.Write((char) 0x255D);
+        if (selected)
+            screen.CursorPosition = (_text.Count + 3, screen.CurrentRenderYPos + 1);
     }
 
     public void HandleKey(InputEvent e, ScreenStack<T> stack)
