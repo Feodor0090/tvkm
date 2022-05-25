@@ -27,6 +27,12 @@ public sealed class TextboxPopup<T> : ListScreen<T> where T : IScreen<T>
         Add(new Button<T>("Продолжить", Submit));
         _onSubmit = onSubmit;
     }
+    public TextboxPopup(string title, string fieldTitle, string fieldContent, Action<string> onSubmit) : base(title)
+    {
+        Add(_field = new TextField<T>(fieldTitle, fieldContent));
+        Add(new Button<T>("Продолжить", Submit));
+        _onSubmit = onSubmit;
+    }
 
     private void Submit()
     {
