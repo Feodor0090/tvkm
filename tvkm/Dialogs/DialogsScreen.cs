@@ -234,6 +234,13 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                 Write($"[Ответ {msg.Reply.Author.Name}]".PadRight(contentW));
             }
         }
+
+        cursorY++;
+        while (cursorY < BufferHeight - 4)
+        {
+            SetCursorPosition(ChatsListWidth + 1, cursorY++);
+            FillSpace(BufferWidth - ChatsListWidth - 2);
+        }
     }
 
     private void FixCursorLocation()
