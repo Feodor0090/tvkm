@@ -193,7 +193,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                     if (x >= contentW)
                     {
                         x = 0;
-                        SetCursorPosition(ChatsListWidth + 1 + maxNameL, ++cursorY);
+                        SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+                        FillSpace(maxNameL);
                     }
 
                     switch (msg.Text[k])
@@ -220,14 +221,16 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             {
                 for (int j = 0; j < msg.Atts!.Length; j++)
                 {
-                    SetCursorPosition(ChatsListWidth + 1 + maxNameL, ++cursorY);
+                    SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+                    FillSpace(maxNameL);
                     Write($"[{msg.Atts[j].Caption}]".PadRight(contentW));
                 }
             }
 
             if (msg.Reply != null)
             {
-                SetCursorPosition(ChatsListWidth + 1 + maxNameL, ++cursorY);
+                SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+                FillSpace(maxNameL);
                 Write($"[Ответ {msg.Reply.Author.Name}]".PadRight(contentW));
             }
         }
