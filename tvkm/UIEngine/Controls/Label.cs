@@ -12,6 +12,7 @@ public class Label<T> : ILabel, IItem<T> where T : IScreen<T>
     public void Draw(bool selected)
     {
         Console.ForegroundColor = selected ? Settings.SelectionColor : Settings.DefaultColor;
+        Console.Write("  ");
         Console.Write(Text);
         Console.WriteLine();
     }
