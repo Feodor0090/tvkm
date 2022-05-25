@@ -69,13 +69,13 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
     private void DrawTextboxBorder()
     {
         DrawBorder(0, BufferHeight - 3, BufferWidth, 3, "Ваше сообщение",
-            Focus == InputField ? ConsoleColor.Yellow : ConsoleColor.White);
+            Focus == InputField ? SelectionColor : DefaultColor);
     }
 
     private void DrawHistoryBorder()
     {
         DrawBorder(DialTabW, 0, BufferWidth - DialTabW, BufferHeight - 3, ActiveDialogName,
-            Focus == MessagesHistory ? ConsoleColor.Yellow : ConsoleColor.White);
+            Focus == MessagesHistory ? SelectionColor : DefaultColor);
     }
 
     private static void FillSpace(int width) => Write(new string(' ', width));
