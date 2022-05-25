@@ -44,7 +44,7 @@ public class TextField<T> : ITextField, IItem<T> where T : IScreen<T>
             Console.Write(ShowChars ? _text[i] : '*');
         }
 
-        Console.CursorLeft = Console.BufferWidth - 3; //TODO remove usage
+        Console.SetCursorPosition(Console.BufferWidth - 3, screen.CurrentRenderYPos + 1);
         Console.Write((char) 0x2551);
         Console.Write("    ");
         Console.Write((char) 0x255A);
