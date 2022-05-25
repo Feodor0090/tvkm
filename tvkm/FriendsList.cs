@@ -35,7 +35,7 @@ public sealed class FriendsList : LongLoadingListScreen<App>
 
         private readonly VkUser _user;
 
-        public void Draw(bool selected)
+        public void Draw(bool selected, ListScreen<App> screen)
         {
             ForegroundColor = selected ? Settings.SelectionColor : Settings.DefaultColor;
             Write("  ");

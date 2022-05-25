@@ -1,3 +1,5 @@
+using tvkm.UIEngine.Templates;
+
 namespace tvkm.UIEngine.Controls;
 
 public class Button<T> : IButton, IItem<T> where T : IScreen<T>
@@ -21,7 +23,7 @@ public class Button<T> : IButton, IItem<T> where T : IScreen<T>
     private string top, main, bottom;
 
 
-    public void Draw(bool selected)
+    public void Draw(bool selected, ListScreen<T> screen)
     {
         Console.ForegroundColor = selected ? Settings.SelectionColor : Settings.DefaultColor;
         Console.WriteLine(top);

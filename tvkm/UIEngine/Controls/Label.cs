@@ -1,3 +1,5 @@
+using tvkm.UIEngine.Templates;
+
 namespace tvkm.UIEngine.Controls;
 
 public class Label<T> : ILabel, IItem<T> where T : IScreen<T>
@@ -9,7 +11,7 @@ public class Label<T> : ILabel, IItem<T> where T : IScreen<T>
         Text = text;
     }
 
-    public void Draw(bool selected)
+    public void Draw(bool selected, ListScreen<T> screen)
     {
         Console.ForegroundColor = selected ? Settings.SelectionColor : Settings.DefaultColor;
         Console.Write("  ");

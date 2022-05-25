@@ -111,7 +111,7 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
             {
                 CurrentRenderYPos = y;
                 SetCursorPosition(0, y);
-                item.Draw(_selectedItem == i);
+                item.Draw(_selectedItem == i, this);
             }
 
             y += item.Height;

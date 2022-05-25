@@ -1,3 +1,5 @@
+using tvkm.UIEngine.Templates;
+
 namespace tvkm.UIEngine.Controls;
 
 public class TextField<T> : ITextField, IItem<T> where T : IScreen<T>
@@ -21,7 +23,7 @@ public class TextField<T> : ITextField, IItem<T> where T : IScreen<T>
 
     public int TextLength => _text.Count;
 
-    public void Draw(bool selected)
+    public void Draw(bool selected, ListScreen<T> screen)
     {
         Console.ForegroundColor = selected ? Settings.SelectionColor : Settings.DefaultColor;
         var w = Console.BufferWidth;

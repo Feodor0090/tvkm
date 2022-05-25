@@ -1,4 +1,5 @@
 using tvkm.UIEngine;
+using tvkm.UIEngine.Templates;
 
 namespace tvkm.Dialogs;
 
@@ -16,7 +17,7 @@ public sealed class DialogItem : IItem<App>
         _target = target;
     }
 
-    public void Draw(bool selected)
+    public void Draw(bool selected, ListScreen<App> screen)
     {
         if (selected)
             Console.ForegroundColor = Settings.SelectionColor;

@@ -98,7 +98,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         for (; i < Peers.Count && j < h + 1; i++)
         {
             SetCursorPosition(1, j);
-            Peers[i].Draw(Focus == PeersList && i == _selectedPeerItem);
+            Peers[i].Draw(Focus == PeersList && i == _selectedPeerItem, null!);
             j++;
         }
 
