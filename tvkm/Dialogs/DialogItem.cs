@@ -3,7 +3,7 @@ using tvkm.UIEngine.Templates;
 
 namespace tvkm.Dialogs;
 
-public sealed class DialogItem : IItem<App>
+public sealed class DialogItem
 {
     public readonly long PeerId;
     public readonly string PeerName;
@@ -17,7 +17,7 @@ public sealed class DialogItem : IItem<App>
         _target = target;
     }
 
-    public void Draw(bool selected, ListScreen<App> screen)
+    public void Draw(bool selected, DialogsScreen screen)
     {
         if (selected)
             Console.ForegroundColor = Settings.SelectionColor;
@@ -26,7 +26,7 @@ public sealed class DialogItem : IItem<App>
         var stp = PeerName;
         if (UnreadCount != 0)
             stp = $"(+{UnreadCount}) " + stp;
-        Console.Write(stp.PadRightOrTrim(DialogsScreen.DialTabW - 2));
+        Console.Write(stp.PadRightOrTrim(screen.ChatsListWidth - 2));
     }
 
     public void HandleKey(InputEvent e, ScreenStack<App> stack = null!)

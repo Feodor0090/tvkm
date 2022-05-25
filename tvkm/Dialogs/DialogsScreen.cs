@@ -12,7 +12,17 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
     private int _selectedPeerItem;
     private int _selectedChatItem = -1;
 
-    public DialogsSection Focus = PeersList;
+    public DialogsSection Focus
+    {
+        get => _focus;
+        set
+        {
+            _focus = value;
+            InvalidatePanelSizes();
+        }
+    }
+
+    private DialogsSection _focus = PeersList;
 
     private readonly List<char> _message = new();
     private int _messageFieldCursorX;
@@ -21,7 +31,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
     private object _drawLock => _stack.PartialDrawLock;
 
-    public const int DialTabW = 50;
+    public int ChatsListWidth = 50;
     private const string DateFormat = " [hh:mm]: ";
 
     public DialogsScreen(ScreenStack<App> stack) : base(stack.MainScreen.Api)
@@ -74,16 +84,44 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
     private void DrawHistoryBorder()
     {
-        DrawBorder(DialTabW, 0, BufferWidth - DialTabW, BufferHeight - 3, ActiveDialogName,
-            Focus == MessagesHistory ? SelectionColor : DefaultColor);
+        if (BufferWidth - ChatsListWidth > 2)
+            DrawBorder(ChatsListWidth, 0, BufferWidth - ChatsListWidth, BufferHeight - 3, ActiveDialogName,
+                Focus == MessagesHistory ? SelectionColor : DefaultColor);
     }
 
     private static void FillSpace(int width) => Write(new string(' ', width));
+
+    private void InvalidatePanelSizes()
+    {
+        if (Settings.ChatsListWidth < 0)
+            Settings.ChatsListWidth = 0;
+        if (Focus == PeersList)
+        {
+            if (Settings.ChatsListWidth > BufferWidth)
+                ChatsListWidth = BufferWidth;
+            else if (BufferWidth <= 64)
+                ChatsListWidth = BufferWidth;
+            else if (ChatsListWidth < 16)
+                ChatsListWidth = BufferWidth;
+            else
+                ChatsListWidth = Settings.ChatsListWidth;
+        }
+        else
+        {
+            if (BufferWidth - Settings.ChatsListWidth <= 32)
+                ChatsListWidth = 0;
+            else if (BufferWidth <= 64)
+                ChatsListWidth = 0;
+            else
+                ChatsListWidth = Settings.ChatsListWidth;
+        }
+    }
 
     #endregion
 
     private void DrawPeersList()
     {
+        if (ChatsListWidth < 2) return;
         var i = 0;
         var h = BufferHeight - 5;
         if (Peers.Count > h)
@@ -98,21 +136,28 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         for (; i < Peers.Count && j < h + 1; i++)
         {
             SetCursorPosition(1, j);
-            Peers[i].Draw(Focus == PeersList && i == _selectedPeerItem, null!);
+            Peers[i].Draw(Focus == PeersList && i == _selectedPeerItem, this);
             j++;
         }
 
-        DrawBorder(0, 0, DialTabW, BufferHeight - 3, "Список диалогов",
+        DrawBorder(0, 0, ChatsListWidth, BufferHeight - 3, "Список диалогов",
             Focus == PeersList ? SelectionColor : DefaultColor);
 
         var scrollProgress = (float) _selectedPeerItem / (Peers.Count - 1);
         var scrollCursorY = (int) (scrollProgress * (h - 1) + 1);
-        SetCursorPosition(DialTabW - 1, scrollCursorY);
+        SetCursorPosition(ChatsListWidth - 1, scrollCursorY);
         Write((char) 0x2588);
     }
 
     public void Draw()
     {
+        if (BufferWidth < 16 || BufferHeight < 8)
+        {
+            WriteLine("Buffer must be at least 16x8!");
+            return;
+        }
+
+        InvalidatePanelSizes();
         DrawTextboxBorder();
         DrawHistoryBorder();
         DrawPeersList();
@@ -128,7 +173,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         var h = BufferHeight;
         var maxNameL = GetMaxSenderNameWidth() + DateFormat.Length;
         var msgAvailH = h - 5; // vertical space for printing
-        var contentW = BufferWidth - DialTabW - 2 - maxNameL; // horizontal space for printing
+        var contentW = BufferWidth - ChatsListWidth - 2 - maxNameL; // horizontal space for printing
         var sm = CalculateFirstMessageIndex(contentW, msgAvailH);
 
         // drawing
@@ -138,7 +183,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             var msg = Msgs[i];
             ForegroundColor = _selectedChatItem == i ? SelectionColor :
                 msg.Author.Id == _stack.MainScreen.UserId ? SpecialColor : DefaultColor;
-            SetCursorPosition(DialTabW + 1, ++cursorY);
+            SetCursorPosition(ChatsListWidth + 1, ++cursorY);
             Write((msg.Author.Name + msg.Time.ToString(DateFormat)).PadLeft(maxNameL));
             if (msg.TextValid)
             {
@@ -148,7 +193,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                     if (x >= contentW)
                     {
                         x = 0;
-                        SetCursorPosition(DialTabW + 1 + maxNameL, ++cursorY);
+                        SetCursorPosition(ChatsListWidth + 1 + maxNameL, ++cursorY);
                     }
 
                     switch (msg.Text[k])
@@ -175,14 +220,14 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             {
                 for (int j = 0; j < msg.Atts!.Length; j++)
                 {
-                    SetCursorPosition(DialTabW + 1 + maxNameL, ++cursorY);
+                    SetCursorPosition(ChatsListWidth + 1 + maxNameL, ++cursorY);
                     Write($"[{msg.Atts[j].Caption}]".PadRight(contentW));
                 }
             }
 
             if (msg.Reply != null)
             {
-                SetCursorPosition(DialTabW + 1 + maxNameL, ++cursorY);
+                SetCursorPosition(ChatsListWidth + 1 + maxNameL, ++cursorY);
                 Write($"[Ответ {msg.Reply.Author.Name}]".PadRight(contentW));
             }
         }
@@ -262,7 +307,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             if (_message.Count <= BufferWidth - 3)
             {
                 Write(_message.ToArray());
-                for (var i = _message.Count; i < BufferWidth - DialTabW - 3; i++)
+                for (var i = _message.Count; i < BufferWidth - ChatsListWidth - 3; i++)
                     Write(' ');
                 return;
             }
@@ -331,6 +376,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         }
 
         #endregion
+
+        InvalidatePanelSizes();
 
         switch (Focus)
         {
@@ -534,8 +581,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
         lock (_drawLock)
         {
-            SetCursorPosition(DialTabW, 0);
-            DrawBlockTitle(BufferWidth - DialTabW, ActiveDialogName + " (печатает)");
+            SetCursorPosition(ChatsListWidth, 0);
+            DrawBlockTitle(BufferWidth - ChatsListWidth, ActiveDialogName + " (печатает)");
             FixCursorLocation();
         }
 
@@ -549,8 +596,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
 
         lock (_drawLock)
         {
-            SetCursorPosition(DialTabW, 0);
-            DrawBlockTitle(BufferWidth - DialTabW, ActiveDialogName);
+            SetCursorPosition(ChatsListWidth, 0);
+            DrawBlockTitle(BufferWidth - ChatsListWidth, ActiveDialogName);
             FixCursorLocation();
         }
     }
