@@ -37,6 +37,16 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
     protected string Title { get; set; }
 
     /// <summary>
+    /// Set this field as (X,Y) to place cursor somewhere after drawing is finished. Use <see cref="CurrentRenderYPos"/> to learn your Y position.
+    /// </summary>
+    public (int, int)? CursorPosition;
+
+    /// <summary>
+    /// Y on screen, where currently rendering item is placed.
+    /// </summary>
+    public int CurrentRenderYPos { get; private set; }
+
+    /// <summary>
     /// Draws items, title, border, hint and overlay.
     /// </summary>
     public void Draw()
@@ -69,6 +79,11 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
         Write((char) 0x255D);
         Write("ArrU/ArrD - навиг., enter - ок, esc - назад, ^C - вых. ");
         DrawOverlay();
+        if (CursorPosition != null)
+        {
+            SetCursorPosition(CursorPosition.Value.Item1, CursorPosition.Value.Item2);
+            CursorPosition = null;
+        }
     }
 
     /// <summary>
@@ -94,6 +109,7 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
             var item = this[i];
             if (y > 0)
             {
+                CurrentRenderYPos = y;
                 SetCursorPosition(0, y);
                 item.Draw(_selectedItem == i);
             }
