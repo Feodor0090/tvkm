@@ -17,7 +17,7 @@ public class Label<T> : ILabel, IItem<T> where T : IScreen<T>
         Console.WriteLine();
     }
 
-    public void HandleKey(InputEvent e, ScreenStack<T> stack)
+    public virtual void HandleKey(InputEvent e, ScreenStack<T> stack)
     {
         // Do nothing
     }
