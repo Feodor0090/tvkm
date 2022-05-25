@@ -11,6 +11,7 @@ public static class Settings
     public static string PlayerPath = "/usr/bin/vlc";
     public static int LongpollTimeout = 25;
     public static int LongpollErrorPause = 5;
+    public static int ChatsListWidth = 50;
     public static bool SendReadEvent = true;
 
     /// <summary>
@@ -42,11 +43,18 @@ public static class Settings
             }
             else if (field.FieldType == typeof(int))
             {
-                field.SetValue(null, int.Parse(pair.Value));
+                if (int.TryParse(pair.Value, out int i))
+                    field.SetValue(null, i);
             }
             else if (field.FieldType == typeof(bool))
             {
-                field.SetValue(null, bool.Parse(pair.Value));
+                var val = pair.Value;
+                if (val == "1" || val.ToLower() == "on")
+                    val = "True";
+                if (val == "0" || val.ToLower() == "off")
+                    val = "False";
+                if (bool.TryParse(val, out bool b))
+                    field.SetValue(null, b);
             }
             else if (field.FieldType == typeof(ConsoleColor))
             {
