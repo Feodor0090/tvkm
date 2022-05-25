@@ -17,10 +17,12 @@ public static class Settings
     /// Color to draw generic elements on screen.
     /// </summary>
     public static ConsoleColor DefaultColor = ConsoleColor.White;
+
     /// <summary>
     /// Color to draw elements that currently are in focus.
     /// </summary>
     public static ConsoleColor SelectionColor = ConsoleColor.Yellow;
+
     /// <summary>
     /// Color to draw elements that are different from the others.
     /// </summary>
@@ -48,8 +50,22 @@ public static class Settings
             }
             else if (field.FieldType == typeof(ConsoleColor))
             {
-                field.SetValue(null, (ConsoleColor) int.Parse(pair.Value));
+                if (Enum.TryParse(pair.Value, true, out ConsoleColor color))
+                    field.SetValue(null, color);
             }
         }
+    }
+
+    public static Dictionary<string, string> Export()
+    {
+        var fields = typeof(Settings).GetFields();
+        Dictionary<string, string> config = new();
+        foreach (var field in fields)
+        {
+            var val = field.GetValue(null)?.ToString() ?? "null";
+            config.Add(field.Name, val);
+        }
+
+        return config;
     }
 }
