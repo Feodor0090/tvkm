@@ -12,6 +12,7 @@ public static class Settings
     public static int LongpollTimeout = 25;
     public static int LongpollErrorPause = 5;
     public static int ChatsListWidth = 50;
+    public static bool AttachmentTypesAsEmoji = false;
     public static bool SendReadEvent = true;
 
     /// <summary>

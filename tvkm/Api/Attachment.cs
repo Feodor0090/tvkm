@@ -67,15 +67,19 @@ public struct Attachment
             switch (att.Instance)
             {
                 case Photo x:
-                    result.Add(new Attachment("Фотография", AttachmentAction.ViewImage,
+                    result.Add(new Attachment((Settings.AttachmentTypesAsEmoji ? "📷" : "Фотография"),
+                        AttachmentAction.ViewImage,
                         x.Sizes.OrderBy(x => x.Width).Last().Url.AbsoluteUri));
                     break;
                 case Video x:
-                    result.Add(new Attachment($"Видео \"{x.Title}\" ({PrintLen(x.Duration ?? 0)})",
+                    result.Add(new Attachment(
+                        $"{(Settings.AttachmentTypesAsEmoji ? "🎥" : "Видео")} \"{x.Title}\" ({PrintLen(x.Duration ?? 0)})",
                         AttachmentAction.DoNothing, null));
                     break;
                 case Audio x:
-                    result.Add(new Attachment($"Аудио \"{x.Artist} - {x.Title}\" ({PrintLen(x.Duration)})", AttachmentAction.ViewMedia, x.Url.AbsoluteUri));
+                    result.Add(new Attachment(
+                        $"{(Settings.AttachmentTypesAsEmoji ? "🎜" : "Аудио")} \"{x.Artist} - {x.Title}\" ({PrintLen(x.Duration)})",
+                        AttachmentAction.ViewMedia, x.Url.AbsoluteUri));
                     break;
                 case Document x:
                     string size;
@@ -87,11 +91,11 @@ public struct Attachment
                         _ => $"{s / 1024 / 1024}MB"
                     };
 
-                    result.Add(new Attachment($"Документ \"{x.Title}\" ({size})", AttachmentAction.DoNothing, null));
+                    result.Add(new Attachment($"{(Settings.AttachmentTypesAsEmoji ? "📄" : "Документ")} \"{x.Title}\" ({size})", AttachmentAction.DoNothing, null));
                     break;
                 case AudioMessage x:
                     string tr = x.Transcript == null ? "" : $" ({x.Transcript})";
-                    result.Add(new Attachment($"Голосовое ({PrintLen((int) x.Duration)}){tr}",
+                    result.Add(new Attachment($"{(Settings.AttachmentTypesAsEmoji ? "📢" : "Голосовое")} ({PrintLen((int) x.Duration)}){tr}",
                         AttachmentAction.ViewMedia, x.LinkMp3.AbsoluteUri));
                     break;
                 case Link x:
