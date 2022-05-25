@@ -58,7 +58,7 @@ public class App : ListScreen<App>
 
     public override void OnEnter(ScreenStack<App> stack)
     {
-        ConfigManager.ReadSettings();
+        ConfigManager.ReadConfig();
         UserId = (int) (Api.UserId ?? 0);
         string userName = VkUser.GetName(UserId, Api);
         Title = $"TVKM - id{UserId} ({userName})";

@@ -12,7 +12,7 @@ public class ConfigView : ListScreen<App>
 
     public override void OnEnter(ScreenStack<App> stack)
     {
-        ConfigManager.ReadSettings();
+        ConfigManager.ReadConfig();
         base.OnEnter(stack);
         
         Clear();

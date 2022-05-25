@@ -8,7 +8,7 @@ public class ConfigManager
     /// <summary>
     /// Reads configuration. If there is no file, creates it. If it is correct, automatically applies it.
     /// </summary>
-    public static void ReadSettings()
+    public static void ReadConfig()
     {
         try
         {
@@ -16,31 +16,53 @@ public class ConfigManager
             Dictionary<string, string> config = new();
             foreach (var line in lines)
             {
-                if(line.Length<2 || line[0].StartsWith("//") || line[0].StartsWith('#')) 
+                if (line.Length < 2 || line[0].StartsWith("//") || line[0].StartsWith('#'))
                     continue;
-                
+
                 config.Add(line[0], line[1]);
             }
+
             Settings.Apply(config);
         }
         catch (FileNotFoundException)
         {
-            using StreamWriter sw = new("config.txt", false);
-            sw.Write($"# Это пустой конфигурационный файл для TVKM. Загляните на GitHub для получения информации о его создании.\n\n" +
-                     $"# BrowserPath: /usr/bin/w3m\n" +
-                     $"# ImageViewerPath: /usr/bin/ristretto\n" +
-                     $"# PlayerPath: /usr/bin/vlc" +
-                     $"# SendReadEvent: true");
-            sw.Flush();
+            CreatePlaceholderConfig();
         }
         catch (IOException)
         {
-
         }
         catch
         {
-            
         }
+    }
+
+    /// <summary>
+    /// Creates empty config with paths to external apps and SendReadEvent switch. Uses W3M, Ristretto and VLC.
+    /// </summary>
+    public static void CreatePlaceholderConfig()
+    {
+        using StreamWriter sw = new("config.txt", false);
+        sw.Write(
+            $"# Это пустой конфигурационный файл для TVKM. Вручную допишите здесь нужные параметры или выберите сохранение всех в меню настроек программы.\n\n" +
+            $"# BrowserPath: /usr/bin/w3m\n" +
+            $"# ImageViewerPath: /usr/bin/ristretto\n" +
+            $"# PlayerPath: /usr/bin/vlc" +
+            $"# SendReadEvent: true");
+        sw.Flush();
+    }
+
+    public static void SaveConfig()
+    {
+        using StreamWriter sw = new("config.txt", false);
+        var config = Settings.Export();
+        sw.WriteLine("# Конфигурация TVKM - сохранено " + DateTime.Now.ToString("HH:mm:ss dd.MM.yyyy"));
+        sw.WriteLine();
+        foreach (var pair in config)
+        {
+            sw.WriteLine(pair.Key + ": " + pair.Value);
+        }
+
+        sw.Flush();
     }
 
     /// <summary>

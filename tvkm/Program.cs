@@ -11,7 +11,7 @@ public static class Program
 
     static void Main(string[] args)
     {
-        ConfigManager.ReadSettings();
+        ConfigManager.ReadConfig();
         InitializeTab(0);
         Hub.Loop();
     }
