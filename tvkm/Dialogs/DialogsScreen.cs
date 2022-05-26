@@ -174,16 +174,21 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
         var maxNameL = GetMaxSenderNameWidth() + DateFormat.Length;
         var msgAvailH = h - 5; // vertical space for printing
         var contentW = BufferWidth - ChatsListWidth - 2 - maxNameL; // horizontal space for printing
-        var sm = CalculateFirstMessageIndex(contentW, msgAvailH);
+        var firstMessageIndex = CalculateFirstMessageIndex(contentW, msgAvailH);
+        if (_selectedChatItem >= 0 && firstMessageIndex + 1 > _selectedChatItem)
+            firstMessageIndex = _selectedChatItem;
+        else
+            firstMessageIndex++;
 
         // drawing
         var cursorY = 0;
-        for (var i = sm + 1; i < Msgs.Count; i++)
+        for (var i = firstMessageIndex; i < Msgs.Count; i++)
         {
             var msg = Msgs[i];
             ForegroundColor = _selectedChatItem == i ? SelectionColor :
                 msg.Author.Id == _stack.MainScreen.UserId ? SpecialColor : DefaultColor;
             SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+            if (cursorY >= BufferHeight - 4) break;
             Write((msg.Author.Name + msg.Time.ToString(DateFormat)).PadLeft(maxNameL));
             if (msg.TextValid)
             {
@@ -194,6 +199,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                     {
                         x = 0;
                         SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+                        if (cursorY >= BufferHeight - 4) break;
                         FillSpace(maxNameL);
                     }
 
@@ -211,7 +217,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                             break;
                     }
                 }
-
+                if (cursorY >= BufferHeight - 4) break;
                 FillSpace(contentW - x);
             }
             else
@@ -222,6 +228,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                 for (int j = 0; j < msg.Atts!.Length; j++)
                 {
                     SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+                    if (cursorY >= BufferHeight - 4) break;
                     FillSpace(maxNameL);
                     Write($"[{msg.Atts[j].Caption}]".PadRight(contentW));
                 }
@@ -230,6 +237,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             if (msg.Reply != null)
             {
                 SetCursorPosition(ChatsListWidth + 1, ++cursorY);
+                if (cursorY >= BufferHeight - 4) break;
                 FillSpace(maxNameL);
                 Write($"[Ответ {msg.Reply.Author.Name}]".PadRight(contentW));
             }
@@ -437,6 +445,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                         return;
                     case InputAction.MoveUp:
                         _selectedChatItem--;
+                        if (_selectedChatItem < 0) _selectedChatItem = 0;
                         break;
                     case InputAction.MoveDown:
                         _selectedChatItem++;
