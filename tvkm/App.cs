@@ -1,4 +1,6 @@
+using System.Data;
 using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using tvkm.Api;
 using tvkm.Dialogs;
@@ -12,7 +14,7 @@ namespace tvkm;
 
 public class App : LongLoadingListScreen<App>
 {
-    public readonly VkApi Api = new();
+    public readonly VkApi Api;
     private ScreenStack<App> _stack;
 
     public LongpollDaemon? Longpoll;
@@ -20,7 +22,11 @@ public class App : LongLoadingListScreen<App>
 
     public App(ScreenStack<App> stack) : base("TVKM")
     {
-        this._stack = stack;
+        _stack = stack;
+        // API
+        var services = new ServiceCollection();
+        Api = new VkApi(services);
+        // UI
         AddRange(new[]
         {
             new Button<App>("Лента", () => { stack.Alert("Махо пидор"); }),
