@@ -10,7 +10,7 @@ using VkNet.Model;
 
 namespace tvkm;
 
-public class App : ListScreen<App>
+public class App : LongLoadingListScreen<App>
 {
     public readonly VkApi Api = new();
     private ScreenStack<App> _stack;
@@ -58,7 +58,7 @@ public class App : ListScreen<App>
 
     #region Screen control
 
-    public override void OnEnter(ScreenStack<App> stack)
+    protected override void Load(ScreenStack<App> stack)
     {
         ConfigManager.ReadConfig();
         UserId = (int) (Api.UserId ?? 0);
