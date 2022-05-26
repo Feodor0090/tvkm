@@ -126,7 +126,7 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
     {
         if (ContentH < TotalItemsH)
         {
-            float scrollProgress = (float) SelectedItemGlobalY / TotalItemsH;
+            float scrollProgress = (float) SelectedItemGlobalY / (TotalItemsH - 1);
             int scrollCursorY = (int) (scrollProgress * ContentH + 1);
             SetCursorPosition(BufferWidth - 1, scrollCursorY);
             Write((char) 0x2588);
