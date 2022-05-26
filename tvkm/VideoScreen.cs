@@ -16,6 +16,7 @@ public class VideoScreen : ListScreen<App>
                 this.RemoveAt(0);
             }));
         var f = video.Files;
+        if (f == null) return;
         if (f.External != null)
             Add(new Button<App>(f.External.AbsoluteUri,
                 () => ExternalUtils.TryOpenBrowser(f.External.AbsoluteUri, stack)));
