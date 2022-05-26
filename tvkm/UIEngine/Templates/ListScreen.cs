@@ -155,7 +155,8 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
                 return;
             }
             default:
-                this[_selectedItem].HandleKey(e, stack);
+                if (Count > 0 && _selectedItem >= 0)
+                    this[_selectedItem].HandleKey(e, stack);
                 return;
         }
     }
