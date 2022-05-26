@@ -1,0 +1,11 @@
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.csproj.AssemblyReference.cache
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.GeneratedMSBuildEditorConfig.editorconfig
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.AssemblyInfoInputs.cache
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.AssemblyInfo.cs
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.csproj.CoreCompileInputs.cache
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/PlatformCompat.Analyzers.settings
+/home/ansel/repos/tvkm/VkNet/bin/Debug/netstandard2.0/VkNet.deps.json
+/home/ansel/repos/tvkm/VkNet/bin/Debug/netstandard2.0/VkNet.dll
+/home/ansel/repos/tvkm/VkNet/bin/Debug/netstandard2.0/VkNet.pdb
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.dll
+/home/ansel/repos/tvkm/VkNet/obj/Debug/netstandard2.0/VkNet.pdb

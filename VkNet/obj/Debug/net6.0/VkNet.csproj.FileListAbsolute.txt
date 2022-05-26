@@ -1,0 +1,12 @@
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.csproj.AssemblyReference.cache
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.GeneratedMSBuildEditorConfig.editorconfig
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.AssemblyInfoInputs.cache
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.AssemblyInfo.cs
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.csproj.CoreCompileInputs.cache
+/home/ansel/repos/tvkm/VkNet/bin/Debug/net6.0/VkNet.deps.json
+/home/ansel/repos/tvkm/VkNet/bin/Debug/net6.0/VkNet.dll
+/home/ansel/repos/tvkm/VkNet/bin/Debug/net6.0/VkNet.pdb
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.dll
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/refint/VkNet.dll
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/VkNet.pdb
+/home/ansel/repos/tvkm/VkNet/obj/Debug/net6.0/ref/VkNet.dll

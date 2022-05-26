@@ -1,0 +1,1 @@
+This is a fork of VkNet library, modified for our needs. Check https://github.com/vknet/vk for original project.
