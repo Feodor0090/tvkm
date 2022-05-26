@@ -140,13 +140,16 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
             j++;
         }
 
-        DrawBorder(0, 0, ChatsListWidth, BufferHeight - 3, "Список диалогов",
+        DrawBorder(0, 0, ChatsListWidth, BufferHeight - 3, Peers.Count == 0 ? "Список чатов пуст" : "Список чатов",
             Focus == PeersList ? SelectionColor : DefaultColor);
 
-        var scrollProgress = (float) _selectedPeerItem / (Peers.Count - 1);
-        var scrollCursorY = (int) (scrollProgress * (h - 1) + 1);
-        SetCursorPosition(ChatsListWidth - 1, scrollCursorY);
-        Write((char) 0x2588);
+        if (Peers.Count > 2)
+        {
+            var scrollProgress = (float) _selectedPeerItem / (Peers.Count - 1);
+            var scrollCursorY = (int) (scrollProgress * (h - 1) + 1);
+            SetCursorPosition(ChatsListWidth - 1, scrollCursorY);
+            Write((char) 0x2588);
+        }
     }
 
     public void Draw()
@@ -217,6 +220,7 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                             break;
                     }
                 }
+
                 if (cursorY >= BufferHeight - 4) break;
                 FillSpace(contentW - x);
             }
@@ -416,6 +420,8 @@ public class DialogsScreen : DialogsScreenBase, IScreen<App>
                             _selectedPeerItem = Peers.Count - 1;
                         break;
                     case InputAction.Activate:
+                        if (_selectedPeerItem >= Peers.Count || _selectedPeerItem < 0)
+                            return;
                         Peers[_selectedPeerItem].HandleKey(e);
                         Focus = InputField;
                         lock (_drawLock)
