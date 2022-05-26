@@ -2,8 +2,8 @@ namespace tvkm.Servers;
 
 public class VkComServer : IServerProvider
 {
-    public string BaseApiUrl => "https://api.vk.com";
-    public string BaseAuthUrl => "https://oauth.vk.com";
+    public virtual string BaseApiUrl => "https://api.vk.com";
+    public virtual string BaseAuthUrl => "https://oauth.vk.com";
 
     private const int VkmId = 2685278;
     private const string VkmSecret = "lxhD8OD7dMsqtXIm5IUY";

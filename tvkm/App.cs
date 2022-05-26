@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using tvkm.Api;
 using tvkm.Dialogs;
+using tvkm.Servers;
 using tvkm.UIEngine;
 using tvkm.UIEngine.Controls;
 using tvkm.UIEngine.Templates;
@@ -15,17 +16,18 @@ namespace tvkm;
 public class App : LongLoadingListScreen<App>
 {
     public readonly VkApi Api;
+    public readonly IServerProvider Server;
     private ScreenStack<App> _stack;
 
     public LongpollDaemon? Longpoll;
     public int UserId { get; private set; }
 
-    public App(ScreenStack<App> stack) : base("TVKM")
+    public App(ScreenStack<App> stack, IServerProvider server) : base("TVKM")
     {
         _stack = stack;
+        Server = server;
         // API
-        var services = new ServiceCollection();
-        Api = new VkApi(services);
+        Api = new VkApi(server.BaseApiUrl);
         // UI
         AddRange(new[]
         {
@@ -69,7 +71,7 @@ public class App : LongLoadingListScreen<App>
         ConfigManager.ReadConfig();
         UserId = (int) (Api.UserId ?? 0);
         string userName = VkUser.GetName(UserId, Api);
-        Title = $"TVKM - id{UserId} ({userName})";
+        Title = $"TVKM - id{UserId} ({userName}) <{Server.BaseApiUrl}>";
         Longpoll = new LongpollDaemon(this, Api);
         Longpoll.Run();
     }
@@ -84,9 +86,6 @@ public class App : LongLoadingListScreen<App>
 
     #region Authorization
 
-    private const int VkmId = 2685278;
-    private const string VkmSecret = "lxhD8OD7dMsqtXIm5IUY";
-
     private void Auth(long id, string token) => Api.Authorize(new ApiAuthParams {AccessToken = token, UserId = id});
 
     public void RestoreFromFile()
@@ -98,14 +97,8 @@ public class App : LongLoadingListScreen<App>
     public string? AuthByPassword(string login, string password, string? code = null)
     {
         using HttpClient http = new();
-        http.BaseAddress = new Uri("https://oauth.vk.com");
-        var r = http.GetAsync("/token?grant_type=password" +
-                              "&client_id=" + VkmId + "&client_secret=" + VkmSecret + "&username=" + login +
-                              "&password=" + password +
-                              "&2fa_supported=1&scope=notify,friends,photos,audio,video,docs,notes,pages,status,offers,questions,wall,groups,messages,notifications,stats,ads" +
-                              (code == null ? "" : $"&code={code}"))
-            .Result;
-
+        http.BaseAddress = new Uri(Server.BaseAuthUrl);
+        var r = http.GetAsync(Server.GetAuthUrl(login, password, code)).Result;
 
         var s = r.Content.ReadAsStringAsync().Result;
 
@@ -146,6 +139,12 @@ public class App : LongLoadingListScreen<App>
         Auth(int.Parse(dict["user_id"]), dict["access_token"]);
         ConfigManager.WriteToken(long.Parse(dict["user_id"]), dict["access_token"]);
         return null;
+    }
+
+    public void Refresh()
+    {
+        Api.RefreshToken();
+        ConfigManager.WriteToken(Api.UserId.Value, Api.Token);
     }
 
     #endregion

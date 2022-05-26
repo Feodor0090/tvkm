@@ -1,4 +1,5 @@
-﻿using tvkm.UIEngine;
+﻿using tvkm.Servers;
+using tvkm.UIEngine;
 
 namespace tvkm;
 
@@ -23,6 +24,6 @@ public static class Program
     static void InitializeTab(int tab)
     {
         ScreenStack<App> stack = Hub[tab];
-        stack.ClearThenPush(new StartupScreen(stack, new App(stack)));
+        stack.ClearThenPush(new StartupScreen(stack, new App(stack, new OpenvkSuServer())));
     }
 }
