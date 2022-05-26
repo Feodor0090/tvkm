@@ -9,6 +9,12 @@ public class VideoScreen : ListScreen<App>
 {
     public VideoScreen(Video video, ScreenStack<App> stack) : base(video.Title)
     {
+        if (video.OwnerId != stack.MainScreen.Api.UserId && video.Added != true)
+            Add(new Button<App>("Добавить к себе", () =>
+            {
+                stack.MainScreen.Api.Video.Add((long) video.Id, (long) video.OwnerId);
+                this.RemoveAt(0);
+            }));
         var f = video.Files;
         if (f.External != null)
             Add(new Button<App>(f.External.AbsoluteUri,
