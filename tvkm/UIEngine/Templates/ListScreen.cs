@@ -100,7 +100,7 @@ public class ListScreen<T> : List<IItem<T>>, IScreen<T> where T : IScreen<T>
             var cy = SelectedItemGlobalY;
             if (cy > h >> 1)
                 y = (h >> 1) - cy;
-            if (cy > tih - h >> 1)
+            if (cy > tih - (h >> 1))
                 y = -(tih - h);
         }
 
