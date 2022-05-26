@@ -36,6 +36,7 @@ public class App : ListScreen<App>
                 }
             }),
             new Button<App>("Друзья", () => { stack.Push(new FriendsList()); }),
+            new Button<App>("Документы", () => { stack.Push(new DocumentsScreen()); }),
             new Button<App>("Закрыть сессию",
                 () =>
                 {
