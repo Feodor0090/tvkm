@@ -12,20 +12,21 @@ public struct Attachment
         ViewMedia,
         JustDownload,
         OpenBrowser,
+        RunDelegate,
     }
 
-    public Attachment(string caption, AttachmentAction action, string? actionUrl)
+    public Attachment(string caption, AttachmentAction action, object? actionObject)
     {
         Caption = caption;
         Action = action;
-        ActionUrl = actionUrl;
+        ActionObject = actionObject;
     }
 
     public string Caption;
     public AttachmentAction Action;
-    public string? ActionUrl;
+    public object? ActionObject;
 
-    private static string PrintLen(int l)
+    public static string PrintLen(int l)
     {
         if (l > 0)
             return
@@ -39,17 +40,22 @@ public struct Attachment
         switch (Action)
         {
             case AttachmentAction.OpenBrowser:
-                ExternalUtils.TryOpenBrowser(ActionUrl, stack);
+                ExternalUtils.TryOpenBrowser(ActionObject.ToString(), stack);
                 break;
             case AttachmentAction.ViewImage:
-                ExternalUtils.TryViewPhoto(ActionUrl, stack);
+                ExternalUtils.TryViewPhoto(ActionObject.ToString(), stack);
                 break;
             case AttachmentAction.ViewMedia:
-                ExternalUtils.TryPlayMediaAsIs(ActionUrl, stack);
+                ExternalUtils.TryPlayMediaAsIs(ActionObject.ToString(), stack);
                 break;
             case AttachmentAction.JustDownload:
                 break;
+            case AttachmentAction.RunDelegate:
+                if (ActionObject is Action<ScreenStack<App>> del)
+                    del.Invoke(stack);
+                break;
             case AttachmentAction.DoNothing:
+                break;
             default:
                 break;
         }
@@ -74,7 +80,8 @@ public struct Attachment
                 case Video x:
                     result.Add(new Attachment(
                         $"{(Settings.AttachmentTypesAsEmoji ? "🎥" : "Видео")} \"{x.Title}\" ({PrintLen(x.Duration ?? 0)})",
-                        AttachmentAction.DoNothing, null));
+                        AttachmentAction.RunDelegate,
+                        (Action<ScreenStack<App>>) (st => st.Push(new VideoScreen(x, st)))));
                     break;
                 case Audio x:
                     result.Add(new Attachment(
@@ -91,11 +98,14 @@ public struct Attachment
                         _ => $"{s / 1024 / 1024}MB"
                     };
 
-                    result.Add(new Attachment($"{(Settings.AttachmentTypesAsEmoji ? "📄" : "Документ")} \"{x.Title}\" ({size})", AttachmentAction.DoNothing, null));
+                    result.Add(new Attachment(
+                        $"{(Settings.AttachmentTypesAsEmoji ? "📄" : "Документ")} \"{x.Title}\" ({size})",
+                        AttachmentAction.DoNothing, null));
                     break;
                 case AudioMessage x:
                     string tr = x.Transcript == null ? "" : $" ({x.Transcript})";
-                    result.Add(new Attachment($"{(Settings.AttachmentTypesAsEmoji ? "📢" : "Голосовое")} ({PrintLen((int) x.Duration)}){tr}",
+                    result.Add(new Attachment(
+                        $"{(Settings.AttachmentTypesAsEmoji ? "📢" : "Голосовое")} ({PrintLen((int) x.Duration)}){tr}",
                         AttachmentAction.ViewMedia, x.LinkMp3.AbsoluteUri));
                     break;
                 case Link x:
