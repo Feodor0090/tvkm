@@ -2,6 +2,7 @@ namespace tvkm.Servers;
 
 public class OpenvkSuServer : IServerProvider
 {
+    public virtual string ReadableName => "openvk";
     public virtual string BaseApiUrl => "https://openvk.su";
     public virtual string BaseAuthUrl => "https://openvk.su";
 

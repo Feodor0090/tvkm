@@ -2,6 +2,7 @@ namespace tvkm.Servers;
 
 public class VkComServer : IServerProvider
 {
+    public virtual string ReadableName => "vk.com";
     public virtual string BaseApiUrl => "https://api.vk.com";
     public virtual string BaseAuthUrl => "https://oauth.vk.com";
 

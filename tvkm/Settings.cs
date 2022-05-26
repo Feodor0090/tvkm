@@ -15,8 +15,8 @@ public static class Settings
     public static bool AttachmentTypesAsEmoji = false;
     public static bool SendReadEvent = true;
 
-    public static string ApiServer = "https://api.vk.com";
-    public static string AuthServer = "https://oauth.vk.com";
+    public static string CustomApiServer = "https://api.vk.com";
+    public static string CustomAuthServer = "https://oauth.vk.com";
 
     /// <summary>
     /// Color to draw generic elements on screen.

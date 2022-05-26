@@ -46,6 +46,7 @@ public class App : LongLoadingListScreen<App>
             new Button<App>("Друзья", () => { stack.Push(new FriendsList()); }),
             new Button<App>("Видео", () => { stack.Push(new VideosScreen()); }),
             new Button<App>("Документы", () => { stack.Push(new DocumentsScreen()); }),
+            new Button<App>("Настройки", () => stack.Push(new ConfigView())),
             new Button<App>("Закрыть сессию",
                 () =>
                 {
@@ -60,7 +61,11 @@ public class App : LongLoadingListScreen<App>
                         })
                     }));
                 }),
-            new Button<App>("Назад", stack.Back),
+            new Button<App>("Выход", () =>
+            {
+                stack.Back();
+                stack.Back();
+            }),
         });
     }
 
@@ -91,7 +96,9 @@ public class App : LongLoadingListScreen<App>
     public void RestoreFromFile()
     {
         var data = ConfigManager.ReadSavedToken();
-        Auth(data.Item1, data.Item2);
+        if (data.Item2 != Server.BaseApiUrl)
+            throw new ArgumentException("Сессия сохранена на другом сервере, переключитесь!");
+        Auth(data.Item3, data.Item4);
     }
 
     public string? AuthByPassword(string login, string password, string? code = null)
@@ -137,14 +144,14 @@ public class App : LongLoadingListScreen<App>
         }
 
         Auth(int.Parse(dict["user_id"]), dict["access_token"]);
-        ConfigManager.WriteToken(long.Parse(dict["user_id"]), dict["access_token"]);
+        ConfigManager.WriteToken(Server,long.Parse(dict["user_id"]), dict["access_token"]);
         return null;
     }
 
     public void Refresh()
     {
         Api.RefreshToken();
-        ConfigManager.WriteToken(Api.UserId.Value, Api.Token);
+        ConfigManager.WriteToken(Server, Api.UserId.Value, Api.Token);
     }
 
     #endregion

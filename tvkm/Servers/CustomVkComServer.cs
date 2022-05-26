@@ -2,6 +2,7 @@ namespace tvkm.Servers;
 
 public class CustomVkComServer : VkComServer
 {
-    public override string BaseApiUrl => Settings.ApiServer;
-    public override string BaseAuthUrl => Settings.AuthServer;
+    public virtual string ReadableName => "vk.com (custom)";
+    public override string BaseApiUrl => Settings.CustomApiServer;
+    public override string BaseAuthUrl => Settings.CustomAuthServer;
 }

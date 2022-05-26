@@ -1,3 +1,5 @@
+using tvkm.Servers;
+
 namespace tvkm;
 
 /// <summary>
@@ -68,22 +70,23 @@ public class ConfigManager
     /// <summary>
     /// Reads a file with saved user ID a token to restore a session.
     /// </summary>
-    /// <returns>User ID and token.</returns>
-    public static (long, string) ReadSavedToken()
+    /// <returns>Name, server, user ID and token.</returns>
+    public static (string, string, long, string) ReadSavedToken()
     {
         var s = File.ReadAllText("session.txt").Split(' ');
-        return (long.Parse(s[0]), s[1]);
+        return (s[0], s[1], long.Parse(s[2]), s[3]);
     }
 
     /// <summary>
     /// Saves user's session.
     /// </summary>
+    /// <param name="server">Server.</param>
     /// <param name="userId">User ID.</param>
     /// <param name="token">Access token.</param>
-    public static void WriteToken(long userId, string token)
+    public static void WriteToken(IServerProvider server, long userId, string token)
     {
         using StreamWriter sw = new("session.txt", false);
-        sw.Write($"{userId} {token}");
+        sw.Write($"session_name {server.BaseApiUrl} {userId} {token}");
         sw.Flush();
     }
 
