@@ -38,6 +38,13 @@ public static class ExternalUtils
         return path;
     }
 
+    public static void SaveFile(string name, string url)
+    {
+        using HttpClient httpClient = new HttpClient();
+        var data = httpClient.GetByteArrayAsync(url).Result;
+        File.WriteAllBytes(name, data);
+    }
+
     public static void TryPlayMediaAsIs(string url, ScreenStack<App> stack)
     {
         try
